@@ -1,0 +1,31 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.layout-content {
+  flex: 1;
+  margin-left: 245px; /* Sidebar width */
+  width: calc(100% - 245px); /* Take remaining width */
+  display: flex;
+  justify-content: center; /* Center the feed in the remaining space */
+  align-items: flex-start; /* Align to top */
+}
+
+@media (max-width: 768px) {
+  .layout-content {
+    margin-left: 72px;
+    max-width: calc(100% - 72px);
+  }
+}
+
+@media (max-width: 500px) {
+  .layout-content {
+    margin-left: 0;
+    max-width: 100%;
+    margin-bottom: 60px; /* Space for bottom nav if we move it there */
+  }
+  
+  /* If we want a bottom nav on mobile, we'd adjust Sidebar logic */
+  /* For now, just keep side nav collapsed */
+}

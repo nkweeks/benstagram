@@ -1,0 +1,217 @@
+.messages-container {
+  display: flex;
+  height: 100vh;
+  margin-left: -20px; /* Counteract layout padding if needed, but better to fix Layout */
+  /* Actually, Layout.jsx wraps Outlet in .layout-content which has padding. 
+     Messages might want to take full remaining width/height without padding.
+     For now, we'll fit within the layout content area. */
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-bg-primary);
+  /* Max height to fit in viewport minus padding if applicable */
+  height: calc(100vh - var(--spacing-xl)); 
+  margin-top: var(--spacing-md);
+}
+
+/* Sidebar (Inbox List) */
+.messages-sidebar {
+  width: 350px;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-header {
+    padding: var(--spacing-lg) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: center;
+    font-weight: 700;
+}
+
+.conversations-list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.conversation-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.conversation-item:hover {
+    background-color: var(--color-bg-secondary);
+}
+
+.conversation-item.active {
+    background-color: var(--color-bg-tertiary); /* Highlight active chat */
+}
+
+.conv-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.conv-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.conv-username {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.conv-preview {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+}
+
+/* Chat Window */
+.chat-window {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-primary);
+}
+
+.chat-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.chat-header-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-actions {
+    display: flex;
+    gap: var(--spacing-lg);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: var(--spacing-lg);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.message-bubble {
+    max-width: 60%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 22px;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+.message-bubble.received {
+    align-self: flex-start;
+    background-color: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    border-bottom-left-radius: 4px;
+}
+
+.message-bubble.sent {
+    align-self: flex-end;
+    background-color: var(--color-accent-primary);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-input-area {
+    padding: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: center;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: 22px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    font-size: 1rem;
+}
+
+.chat-input-area input:focus {
+    outline: none;
+    border-color: var(--color-text-muted);
+}
+
+.chat-input-area button {
+    background: none;
+    border: none;
+    color: var(--color-accent-primary);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.chat-input-area button:disabled {
+    color: var(--color-text-muted);
+    cursor: default;
+}
+
+/* Empty State */
+.no-chat-selected {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing-md);
+}
+
+.send-msg-btn {
+    background-color: var(--color-accent-primary);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--radius-sm);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .messages-container {
+        flex-direction: column;
+    }
+    .messages-sidebar {
+        width: 100%;
+        height: 100%;
+        border-right: none;
+    }
+    .chat-window {
+        display: none; /* Hide chat on mobile list view, ideally use router for split views */
+    }
+    /* Mobile nav logic would be needed for full mobile optimization */
+}

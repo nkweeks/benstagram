@@ -1,0 +1,62 @@
+.feed-container {
+  width: 100%;
+  max-width: 630px; /* Standard Instagram feed width */
+  padding: var(--spacing-md) 0;
+  margin: 0 auto;
+}
+
+.stories-container {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  margin-bottom: var(--spacing-lg);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+}
+.stories-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.story-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.story-circle {
+  flex-shrink: 0;
+  width: 66px;
+  height: 66px;
+  padding: 3px; /* Space for ring */
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  background: var(--color-accent-gradient);
+  z-index: 1;
+}
+
+.story-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-primary); /* Border between ring and image */
+  position: relative;
+  z-index: 2;
+  object-fit: cover;
+}
+
+.story-circle.add-story .story-ring {
+  background: var(--color-text-muted);
+}

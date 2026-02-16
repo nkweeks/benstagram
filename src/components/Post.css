@@ -1,0 +1,128 @@
+.post {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--spacing-xl);
+  backdrop-filter: blur(var(--glass-blur));
+  overflow: hidden;
+}
+
+.post-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+}
+
+.post-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.post-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--color-accent-secondary);
+}
+
+.post-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-username {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.post-time {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.post-options {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  opacity: 0.7;
+}
+
+.post-image {
+  width: 100%;
+  position: relative;
+  /* aspect-ratio: 4/5; Optional constraint */ 
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.post-footer {
+  padding: var(--spacing-md);
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.post-actions-left {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  padding: 0;
+  transition: transform 0.1s;
+}
+
+.action-btn:active {
+  transform: scale(0.9);
+}
+
+.action-btn.liked {
+  color: #ef4444;
+}
+
+.post-likes {
+  margin-bottom: var(--spacing-xs);
+  font-size: 0.9rem;
+}
+
+.post-caption {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin-bottom: var(--spacing-xs);
+}
+
+.post-comments-link {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.heart-animation {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 6rem;
+  animation: pop 0.8s ease-out;
+  pointer-events: none;
+}
+
+@keyframes pop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
