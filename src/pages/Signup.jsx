@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import BenVerificationModal from '../components/BenVerificationModal';
 import './Login.css'; // Reuse Login styles
 
 const Signup = () => {
@@ -10,6 +11,8 @@ const Signup = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    
+    const [isVerified, setIsVerified] = useState(false);
     
     const { signup, loginWithGoogle } = useAuth();
     const { logoPath } = useTheme();
@@ -44,7 +47,9 @@ const Signup = () => {
 
     return (
         <div className="login-container">
-            <div className="login-box">
+            {!isVerified && <BenVerificationModal onVerified={() => setIsVerified(true)} />}
+            
+            <div className={`login-box ${!isVerified ? 'blur-content' : ''}`}>
                 <div className="login-logo">
                     <img src={logoPath} alt="Benstagram" />
                 </div>
@@ -105,7 +110,7 @@ const Signup = () => {
                 </p>
             </div>
 
-            <div className="login-signup-box">
+            <div className={`login-signup-box ${!isVerified ? 'blur-content' : ''}`}>
                 <p>Have an account? <Link to="/login">Log in</Link></p>
             </div>
         </div>

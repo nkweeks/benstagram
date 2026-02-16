@@ -1,0 +1,134 @@
+.ben-verification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.ben-verification-box {
+    background: #1e1e1e;
+    padding: 2.5rem;
+    border-radius: 16px;
+    border: 1px solid #333;
+    text-align: center;
+    color: white;
+    max-width: 320px;
+    width: 90%;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease-out;
+}
+
+.ben-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: bounce 2s infinite;
+}
+
+.ben-verification-box h2 {
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 0.5rem;
+    color: #fff;
+}
+
+.ben-verification-box p {
+    color: #a8a8a8;
+    margin-bottom: 1.5rem;
+}
+
+.ben-verification-box strong {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.ben-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.ben-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.ben-btn:active {
+    transform: scale(0.95);
+}
+
+.ben-btn.yes {
+    background: var(--color-primary);
+    color: white;
+}
+
+.ben-btn.no {
+    background: #333;
+    color: white;
+}
+
+.ben-btn.no:hover {
+    background: #444;
+}
+
+.snark-message {
+    color: #ef4444;
+    font-weight: 600;
+    background: rgba(239, 68, 68, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.terms-tiny {
+    margin-top: 1.5rem !important;
+    font-size: 0.7rem;
+    opacity: 0.5;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+.blur-content {
+    filter: blur(5px);
+    pointer-events: none;
+    user-select: none;
+}
