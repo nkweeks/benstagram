@@ -6,7 +6,8 @@ import {
     confirmSignUp, 
     getCurrentUser, 
     fetchUserAttributes,
-    autoSignIn 
+    autoSignIn,
+    signInWithRedirect 
 } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
 import { getUrl } from 'aws-amplify/storage';
@@ -29,6 +30,17 @@ export const AuthProvider = ({ children }) => {
 
     const checkUser = async () => {
         try {
+            // Check for Cypress Test User override
+            if (window.Cypress) {
+                const cypressUser = localStorage.getItem('cypress_user');
+                if (cypressUser) {
+                    console.log('Using Cypress Test User');
+                    setUser(JSON.parse(cypressUser));
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             const currentUser = await getCurrentUser();
             const attributes = await fetchUserAttributes();
             
@@ -137,7 +149,11 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithGoogle = async () => {
-        console.log("Google Auth not fully configured yet.");
+        try {
+            await signInWithRedirect({ provider: 'Google' });
+        } catch (error) {
+            console.error("Google Login failed:", error);
+        }
     };
 
     const logout = async () => {

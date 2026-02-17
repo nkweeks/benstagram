@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Post from '../components/Post';
 import { useFeed } from '../contexts/FeedContext';
-import benAvatar from '../../public/ben-avatar-general.jpeg'; // Use new avatar or from public directly
+// import benAvatar from '../../public/ben-avatar-general.jpeg'; // REMOVED: Use public path directly
 import { PostSkeleton } from '../components/Skeleton';
 import './Feed.css';
 
@@ -46,7 +46,7 @@ const Feed = () => {
         <div className="story-wrapper">
           <div className="story-circle">
             <div className="story-ring"></div>
-            <img src={benAvatar} alt="ben" />
+            <img src="/ben-avatar-general.jpeg" alt="ben" />
           </div>
           <span className="story-username">ben</span>
         </div>

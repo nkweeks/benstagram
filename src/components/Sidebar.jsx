@@ -31,7 +31,7 @@ const Sidebar = ({ onCreateClick }) => {
             <Home size={24} />
             <span>Home</span>
           </Link>
-          <button className={`nav-item create-btn ${isSearchOpen ? 'active' : ''}`} onClick={() => setIsSearchOpen(!isSearchOpen)}>
+          <button className={`nav-item ${isSearchOpen ? 'active' : ''}`} onClick={() => setIsSearchOpen(!isSearchOpen)}>
             <Search size={24} />
             <span>Search</span>
           </button>
