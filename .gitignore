@@ -71,6 +71,7 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.local
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -120,3 +121,8 @@ dist
 
 # Vite
 dist
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*

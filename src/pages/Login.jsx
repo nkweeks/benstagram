@@ -8,11 +8,12 @@ const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const { login, loginWithGoogle } = useAuth();
     const { logoPath } = useTheme(); // Use the text logo
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         
@@ -21,23 +22,40 @@ const Login = () => {
             return;
         }
 
-        const success = login(username, password);
-        if (success) {
+        setIsLoading(true);
+        const result = await login(username, password);
+        setIsLoading(false);
+
+        if (result.success) {
             navigate('/');
         } else {
-            setError('Invalid username. Try "the_ben_official".');
+            if (result.error === 'UserNotConfirmedException') {
+                setError('Please verify your email address.');
+                // Optional: Redirect to a verification page or show verify input here
+            } else if (result.error.includes('Incorrect username or password')) {
+                setError('Invalid username or password.');
+            } else {
+                setError(result.error);
+            }
         }
     };
 
     // Helper for demo
-    const handleDemoLogin = () => {
-        login('the_ben_official', 'password');
-        navigate('/');
+    const handleDemoLogin = async () => {
+        setIsLoading(true);
+        const result = await login('the_ben_official', 'password'); // This will fail until we create this user in Cognito
+        setIsLoading(false);
+        
+        if (result.success) {
+            navigate('/');
+        } else {
+             setError('Demo user not found in Cloud. Sign up first!');
+        }
     };
 
     const handleGoogleLogin = () => {
         loginWithGoogle();
-        navigate('/');
+        // navigate('/');
     };
 
     return (
@@ -76,9 +94,11 @@ const Login = () => {
                     <div className="line"></div>
                 </div>
 
+                {/*
                 <button className="facebook-login" onClick={handleGoogleLogin}>
-                    Log in with Google
+                    Log in with Google (Coming Soon)
                 </button>
+                */}
                 
                 <a href="#" className="forgot-password">Forgot password?</a>
             </div>

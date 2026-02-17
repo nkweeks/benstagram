@@ -1,6 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { USERS } from '../data/mockData';
+import { 
+    signIn, 
+    signUp, 
+    signOut, 
+    confirmSignUp, 
+    getCurrentUser, 
+    fetchUserAttributes,
+    autoSignIn 
+} from 'aws-amplify/auth';
+import { generateClient } from 'aws-amplify/data';
+import { getUrl } from 'aws-amplify/storage';
 
+const client = generateClient();
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -11,99 +22,160 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // Initial check for logged-in user
     useEffect(() => {
-        // Check local storage for existing session
-        const storedUser = localStorage.getItem('benstagram_user');
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        } else {
-            // OPTIONAL: Auto-login as Ben for dev convenience, or start logged out
-            // setUser(USERS.find(u => u.id === 'ben')); 
-        }
-        setIsLoading(false);
+        checkUser();
     }, []);
 
-    const login = (username, password) => {
-        // Mock login logic
-        // In reality, verify password. Here, just find user by username.
-        const foundUser = USERS.find(u => u.username === username || u.id === username);
-        
-        if (foundUser) {
-            setUser(foundUser);
-            localStorage.setItem('benstagram_user', JSON.stringify(foundUser));
-            return true;
+    const checkUser = async () => {
+        try {
+            const currentUser = await getCurrentUser();
+            const attributes = await fetchUserAttributes();
+            
+            // Try to fetch existing profile from DynamoDB
+            const { data: profiles } = await client.models.UserProfile.list({
+                filter: { username: { eq: currentUser.username } }
+            });
+
+            let userProfile = profiles[0];
+
+            if (!userProfile) {
+                // If no profile exists (first login), create one
+                console.log("Creating new UserProfile for:", currentUser.username);
+                const { data: newProfile, errors } = await client.models.UserProfile.create({
+                    username: currentUser.username,
+                    email: attributes.email,
+                    fullName: attributes.name || '',
+                    bio: 'New to Benstagram',
+                    avatar: '' 
+                });
+                
+                if (errors) {
+                    console.error("Error creating profile:", errors);
+                }
+                userProfile = newProfile;
+            }
+            
+            // Resolve Avatar URL if exists
+            if (userProfile && userProfile.avatar) {
+                try {
+                    const link = await getUrl({ path: userProfile.avatar });
+                    // Provide a signed URL or public URL
+                    userProfile.avatarUrl = link.url.toString();
+                } catch (err) {
+                    console.error("Error resolving avatar:", err);
+                }
+            } else if (userProfile) {
+                 userProfile.avatarUrl = null; 
+            }
+            
+            setUser(userProfile);
+        } catch (error) {
+            console.log('No user logged in:', error);
+            setUser(null);
+        } finally {
+            setIsLoading(false);
         }
-        
-        // Check if it's a locally stored user (from signup)
-        const localUser = JSON.parse(localStorage.getItem('benstagram_created_user'));
-        if (localUser && (localUser.username === username || localUser.email === username) && localUser.password === password) {
-             setUser(localUser);
-             localStorage.setItem('benstagram_user', JSON.stringify(localUser));
-             return true;
+    };
+
+    const login = async (username, password) => {
+        try {
+            const { isSignedIn, nextStep } = await signIn({ username, password });
+            
+            if (isSignedIn) {
+                await checkUser(); // Fetch/Create profile
+                return { success: true };
+            }
+            
+            if (nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
+                 return { success: false, error: 'UserNotConfirmedException' };
+            }
+
+            return { success: false, error: 'Unknown login state' };
+        } catch (error) {
+            console.error('Login error:', error);
+            return { success: false, error: error.message };
         }
-
-        return false;
     };
 
-    const signup = (email, fullName, username, password) => {
-        const newUser = {
-            id: username, // simplistic ID generation
-            username,
-            fullName,
-            email, // Store email
-            password, // Store password (INSECURE: DEMO ONLY)
-            avatar: null, // Default or placeholder
-            bio: 'New to Benstagram',
-            followers: 0,
-            following: 0,
-            posts: 0
-        };
-        
-        // Save to "database" (local storage for created users)
-        // In a real app this goes to backend
-        localStorage.setItem('benstagram_created_user', JSON.stringify(newUser));
-        
-        // Auto-login
-        setUser(newUser);
-        localStorage.setItem('benstagram_user', JSON.stringify(newUser));
-        return true;
+    const signup = async (email, fullName, username, password) => {
+        try {
+            const { isSignUpComplete, userId, nextStep } = await signUp({
+                username,
+                password,
+                options: {
+                    userAttributes: {
+                        email,
+                        name: fullName,
+                        preferred_username: username // Standard OpenID claim
+                    }
+                }
+            });
+
+            return { success: true, nextStep };
+        } catch (error) {
+            console.error('Signup error:', error);
+            return { success: false, error: error.message };
+        }
     };
 
-    const loginWithGoogle = () => {
-        // Mock Google User
-        const googleUser = {
-            id: 'google_user',
-            username: 'google_user_123',
-            fullName: 'Google User',
-            email: 'user@gmail.com',
-            avatar: 'https://lh3.googleusercontent.com/d/1234', // Placeholder or generic
-            bio: 'Logged in via Google',
-            followers: 0,
-            following: 0,
-            posts: 0
-        };
-        
-        setUser(googleUser);
-        localStorage.setItem('benstagram_user', JSON.stringify(googleUser));
-        return true;
+    const verifyEmail = async (username, code) => {
+        try {
+            const { isSignUpComplete, nextStep } = await confirmSignUp({
+                username,
+                confirmationCode: code
+            });
+            
+            if (isSignUpComplete) {
+                return { success: true };
+            }
+            return { success: false, nextStep };
+        } catch (error) {
+             console.error('Verification error:', error);
+             return { success: false, error: error.message };
+        }
     };
 
-    const logout = () => {
-        setUser(null);
-        localStorage.removeItem('benstagram_user');
+    const loginWithGoogle = async () => {
+        console.log("Google Auth not fully configured yet.");
     };
 
-    const updateUser = (updates) => {
-        if (!user) return;
+    const logout = async () => {
+        try {
+            await signOut();
+            setUser(null);
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
+
+    const updateUser = async (updates) => {
+        if (!user || !user.id) return;
         
-        const updatedUser = { ...user, ...updates };
-        setUser(updatedUser);
-        localStorage.setItem('benstagram_user', JSON.stringify(updatedUser));
-        
-        // If it was the locally created user, update that storage too
-        const localUser = JSON.parse(localStorage.getItem('benstagram_created_user'));
-        if (localUser && localUser.username === user.username) {
-             localStorage.setItem('benstagram_created_user', JSON.stringify({ ...localUser, ...updates }));
+        try {
+            // Optimistic update (partial)
+            setUser(prev => ({ ...prev, ...updates }));
+
+            // DB Update
+            const { data: updatedProfile, errors } = await client.models.UserProfile.update({
+                id: user.id,
+                ...updates
+            });
+
+            if (errors) throw new Error(errors[0].message);
+
+            // Resolve URL again if avatar changed
+            if (updates.avatar) {
+                 const link = await getUrl({ path: updates.avatar });
+                 updatedProfile.avatarUrl = link.url.toString();
+            } else {
+                 updatedProfile.avatarUrl = user.avatarUrl; // keep existing
+            }
+
+            setUser(updatedProfile); // Sync with server response
+            
+        } catch (error) {
+            console.error("Failed to update profile:", error);
         }
     };
 
@@ -111,6 +183,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         signup,
+        verifyEmail,
         loginWithGoogle,
         logout,
         updateUser,
