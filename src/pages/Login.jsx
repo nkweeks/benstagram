@@ -50,13 +50,13 @@ const Login = () => {
     // Helper for demo
     const handleDemoLogin = async () => {
         setIsLoading(true);
-        const result = await login('the_ben_official', 'password'); // This will fail until we create this user in Cognito
+        const result = await login('the_ben_official', 'demo'); // Uses bypass logic
         setIsLoading(false);
         
         if (result.success) {
             navigate('/');
         } else {
-             setError('Demo user not found in Cloud. Sign up first!');
+             setError('Demo login failed. Check bypass logic.');
         }
     };
 

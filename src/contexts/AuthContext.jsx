@@ -41,6 +41,15 @@ export const AuthProvider = ({ children }) => {
                 }
             }
 
+            // Check for Demo User override
+            const demoUser = localStorage.getItem('demo_user');
+            if (demoUser) {
+                console.log('Using Demo User');
+                setUser(JSON.parse(demoUser));
+                setIsLoading(false);
+                return;
+            }
+
             const currentUser = await getCurrentUser();
             const attributes = await fetchUserAttributes();
             
@@ -92,6 +101,23 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (username, password) => {
         try {
+            // DEMO USER BYPASS
+            if (username === 'the_ben_official' && password === 'demo') {
+                const demoUser = {
+                    id: 'ben',
+                    username: 'the_ben_official',
+                    email: 'ben@benstagram.com',
+                    fullName: 'General Ben',
+                    bio: 'Great Dane. General of the Army. Good Boy. 🦴',
+                    avatarUrl: '/ben-avatar-general.jpeg',
+                    avatar: '/ben-avatar-general.jpeg',
+                    savedPostIds: []
+                };
+                localStorage.setItem('demo_user', JSON.stringify(demoUser));
+                setUser(demoUser);
+                return { success: true };
+            }
+
             const { isSignedIn, nextStep } = await signIn({ username, password });
             
             if (isSignedIn) {
@@ -158,6 +184,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
+            localStorage.removeItem('demo_user');
             await signOut();
             setUser(null);
         } catch (error) {
