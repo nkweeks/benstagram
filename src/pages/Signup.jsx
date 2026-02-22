@@ -20,16 +20,16 @@ const Signup = () => {
     const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
     
-    const { user, signup, verifyEmail, loginWithGoogle } = useAuth();
+    const { user, signup, verifyEmail, loginWithGoogle, isLoading: isAuthLoading } = useAuth();
     const { logoPath } = useTheme();
     const navigate = useNavigate();
 
     // Redirect if already logged in
     React.useEffect(() => {
-        if (user) {
+        if (user && !isAuthLoading) {
             navigate('/');
         }
-    }, [user, navigate]);
+    }, [user, isAuthLoading, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

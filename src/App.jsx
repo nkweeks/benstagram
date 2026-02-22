@@ -23,18 +23,14 @@ const AnimatedRoutes = () => {
         <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
         <Route path="/signup" element={<PageTransition><Signup /></PageTransition>} />
         
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<PageTransition><Feed /></PageTransition>} />
-          <Route path="explore" element={<PageTransition><Explore /></PageTransition>} />
-          <Route path="messages" element={<PageTransition><Messages /></PageTransition>} />
-          <Route path="notifications" element={<PageTransition><Notifications /></PageTransition>} />
-          <Route path="settings" element={<PageTransition><Settings /></PageTransition>} />
-          <Route path="profile/:username" element={<PageTransition><Profile /></PageTransition>} />
-          <Route path="*" element={<PageTransition><Feed /></PageTransition>} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<ProtectedRoute><PageTransition><Feed /></PageTransition></ProtectedRoute>} />
+          <Route path="explore" element={<ProtectedRoute><PageTransition><Explore /></PageTransition></ProtectedRoute>} />
+          <Route path="messages" element={<ProtectedRoute><PageTransition><Messages /></PageTransition></ProtectedRoute>} />
+          <Route path="notifications" element={<ProtectedRoute><PageTransition><Notifications /></PageTransition></ProtectedRoute>} />
+          <Route path="settings" element={<ProtectedRoute><PageTransition><Settings /></PageTransition></ProtectedRoute>} />
+          <Route path="profile/:username" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+          <Route path="*" element={<ProtectedRoute><PageTransition><Feed /></PageTransition></ProtectedRoute>} />
         </Route>
       </Routes>
     </AnimatePresence>

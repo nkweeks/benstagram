@@ -15,10 +15,10 @@ const Login = () => {
 
     // Redirect if already logged in
     React.useEffect(() => {
-        if (user) {
+        if (user && !isLoading) {
             navigate('/');
         }
-    }, [user, navigate]);
+    }, [user, isLoading, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

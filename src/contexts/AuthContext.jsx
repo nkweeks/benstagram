@@ -199,6 +199,7 @@ export const AuthProvider = ({ children }) => {
         } finally {
             localStorage.removeItem('demo_user');
             setUser(null);
+            window.location.href = '/login';
         }
     };
 
