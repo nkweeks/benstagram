@@ -180,7 +180,7 @@ export const AuthProvider = ({ children }) => {
             // Bypass buggy signInWithRedirect by forming the Cognito Hosted UI URL manually
             // Use the dynamically injected domain from the backend config if it exists
             const domain = outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com';
-            const clientId = '7nvlt7h2h7k1mc182uh30vkhjn';
+            const clientId = outputs.auth?.user_pool_client_id;
             const redirectUri = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3333/profile' 
                 : 'https://benstagram.net/profile';
