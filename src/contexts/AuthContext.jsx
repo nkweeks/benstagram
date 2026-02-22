@@ -11,6 +11,7 @@ import {
 } from 'aws-amplify/auth';
 import { generateClient } from 'aws-amplify/data';
 import { getUrl } from 'aws-amplify/storage';
+import outputs from '../../amplify_outputs.json';
 
 const AuthContext = createContext();
 
@@ -178,7 +179,7 @@ export const AuthProvider = ({ children }) => {
         try {
             // Bypass buggy signInWithRedirect by forming the Cognito Hosted UI URL manually
             // Use the dynamically injected domain from the backend config if it exists
-            const domain = awsconfig.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com';
+            const domain = outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com';
             const clientId = '7nvlt7h2h7k1mc182uh30vkhjn';
             const redirectUri = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3333/profile' 
