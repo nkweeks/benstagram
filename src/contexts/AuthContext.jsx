@@ -12,7 +12,6 @@ import {
 import { generateClient } from 'aws-amplify/data';
 import { getUrl } from 'aws-amplify/storage';
 
-const client = generateClient();
 const AuthContext = createContext();
 
 export const useAuth = () => {
@@ -20,6 +19,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
+    const client = generateClient();
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -176,7 +176,16 @@ export const AuthProvider = ({ children }) => {
 
     const loginWithGoogle = async () => {
         try {
-            await signInWithRedirect({ provider: 'Google' });
+            // Bypass buggy signInWithRedirect by forming the Cognito Hosted UI URL manually
+            const domain = 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com';
+            const clientId = '7nvlt7h2h7k1mc182uh30vkhjn';
+            const redirectUri = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3333/profile' 
+                : 'https://benstagram.net/profile';
+                
+            const url = `https://${domain}/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=CODE&client_id=${clientId}&scope=email openid phone profile aws.cognito.signin.user.admin`;
+            
+            window.location.href = url;
         } catch (error) {
             console.error("Google Login failed:", error);
         }
@@ -184,11 +193,12 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            localStorage.removeItem('demo_user');
             await signOut();
-            setUser(null);
         } catch (error) {
             console.error('Logout error:', error);
+        } finally {
+            localStorage.removeItem('demo_user');
+            setUser(null);
         }
     };
 
