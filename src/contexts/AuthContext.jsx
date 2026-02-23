@@ -178,6 +178,11 @@ export const AuthProvider = ({ children }) => {
     const loginWithGoogle = async () => {
         try {
             // Bypass buggy signInWithRedirect by forming the Cognito Hosted UI URL manually
+            console.log("=== OAUTH DEBUG ===");
+            console.log("Live Amplify Outputs Object:", outputs);
+            console.log("User Pool ID:", outputs.auth?.user_pool_id);
+            console.log("Is Prod Auth?:", outputs.auth?.user_pool_id === 'us-east-1_7tq90ZnHR');
+            
             // Use the custom domain for the production User Pool, otherwise fallback to the dynamically injected amplify domain
             const isProdAuth = outputs.auth?.user_pool_id === 'us-east-1_7tq90ZnHR';
             const domain = isProdAuth ? 'auth.benstagram.net' : (outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com');
