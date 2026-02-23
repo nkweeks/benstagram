@@ -183,9 +183,9 @@ export const AuthProvider = ({ children }) => {
             console.log("User Pool ID:", outputs.auth?.user_pool_id);
             console.log("Is Prod Auth?:", outputs.auth?.user_pool_id === 'us-east-1_7tq90ZnHR');
             
-            // Use the custom domain for the production User Pool, otherwise fallback to the dynamically injected amplify domain
-            const isProdAuth = outputs.auth?.user_pool_id === 'us-east-1_7tq90ZnHR';
-            const domain = isProdAuth ? 'auth.benstagram.net' : (outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com');
+            // Use the custom domain for the production environment, otherwise fallback to the dynamically injected amplify domain for localhost/staging
+            const isProdEnv = window.location.hostname === 'benstagram.net' || window.location.hostname === 'www.benstagram.net';
+            const domain = isProdEnv ? 'auth.benstagram.net' : (outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com');
             const clientId = outputs.auth?.user_pool_client_id;
             const redirectUri = window.location.hostname === 'localhost' 
                 ? 'http://localhost:3333/profile' 
