@@ -188,8 +188,8 @@ export const AuthProvider = ({ children }) => {
             const domain = isProdEnv ? 'auth.benstagram.net' : (outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com');
             const clientId = outputs.auth?.user_pool_client_id;
             const redirectUri = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3333/profile' 
-                : 'https://benstagram.net/profile';
+                ? 'http://localhost:3333/profile/' 
+                : 'https://benstagram.net/profile/';
                 
             const url = `https://${domain}/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=CODE&client_id=${clientId}&scope=email openid phone profile aws.cognito.signin.user.admin`;
             

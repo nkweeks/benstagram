@@ -20,7 +20,7 @@ try {
         oauth: {
             domain: outputs?.auth?.oauth?.domain,
             scope: outputs?.auth?.oauth?.scope,
-            redirectSignIn: isLocalhost ? 'http://localhost:3333/profile' : 'https://benstagram.net/profile',
+            redirectSignIn: isLocalhost ? 'http://localhost:3333/profile/' : 'https://benstagram.net/profile/',
             redirectSignOut: isLocalhost ? 'http://localhost:3333' : 'https://benstagram.net',
             responseType: 'code'
         }
