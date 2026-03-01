@@ -14,8 +14,8 @@ export const auth = defineAuth({
         scopes: ['email', 'profile'],
       },
       callbackUrls: [
-        'http://localhost:3333/profile',
-        'https://benstagram.net/profile'
+        'http://localhost:3333/profile/',
+        'https://benstagram.net/profile/'
       ],
       logoutUrls: [
         'http://localhost:3333',
