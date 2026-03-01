@@ -14,11 +14,12 @@ console.log("Loading Amplify outputs:", outputs);
 
 try {
     const isLocalhost = window.location.hostname === 'localhost';
+    const isProdEnv = window.location.hostname === 'benstagram.net' || window.location.hostname === 'www.benstagram.net';
     
     Amplify.configure({
         ...outputs,
         oauth: {
-            domain: outputs?.auth?.oauth?.domain,
+            domain: isProdEnv ? 'auth.benstagram.net' : (outputs?.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com'),
             scope: outputs?.auth?.oauth?.scope,
             redirectSignIn: isLocalhost ? 'http://localhost:3333/profile/' : 'https://benstagram.net/profile/',
             redirectSignOut: isLocalhost ? 'http://localhost:3333' : 'https://benstagram.net',

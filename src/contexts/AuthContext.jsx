@@ -177,23 +177,7 @@ export const AuthProvider = ({ children }) => {
 
     const loginWithGoogle = async () => {
         try {
-            // Bypass buggy signInWithRedirect by forming the Cognito Hosted UI URL manually
-            console.log("=== OAUTH DEBUG ===");
-            console.log("Live Amplify Outputs Object:", outputs);
-            console.log("User Pool ID:", outputs.auth?.user_pool_id);
-            console.log("Is Prod Auth?:", outputs.auth?.user_pool_id === 'us-east-1_7tq90ZnHR');
-            
-            // Use the custom domain for the production environment, otherwise fallback to the dynamically injected amplify domain for localhost/staging
-            const isProdEnv = window.location.hostname === 'benstagram.net' || window.location.hostname === 'www.benstagram.net';
-            const domain = isProdEnv ? 'auth.benstagram.net' : (outputs.auth?.oauth?.domain || 'benstagram-auth-nathan.auth.us-east-1.amazoncognito.com');
-            const clientId = outputs.auth?.user_pool_client_id;
-            const redirectUri = window.location.hostname === 'localhost' 
-                ? 'http://localhost:3333/profile/' 
-                : 'https://benstagram.net/profile/';
-                
-            const url = `https://${domain}/oauth2/authorize?identity_provider=Google&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=CODE&client_id=${clientId}&scope=email openid phone profile aws.cognito.signin.user.admin`;
-            
-            window.location.href = url;
+            await signInWithRedirect({ provider: 'Google' });
         } catch (error) {
             console.error("Google Login failed:", error);
         }
