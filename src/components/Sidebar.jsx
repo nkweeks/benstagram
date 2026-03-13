@@ -47,7 +47,10 @@ const Sidebar = ({ onCreateClick }) => {
             <Heart size={24} />
             <span>Notifications</span>
           </Link>
-          <button className="nav-item create-btn" onClick={onCreateClick}>
+          <button 
+            className="nav-item create-btn" 
+            onClick={() => user?.id === 'ben' ? window.alert('Posting is disabled for the General Ben demo account.') : onCreateClick()}
+          >
             <PlusSquare size={24} />
             <span>Create</span>
           </button>

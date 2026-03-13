@@ -55,7 +55,7 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
         </div>
 
         <div className="post-likes">
-          <strong>{likes.toLocaleString()} likes</strong>
+          <strong>{(likes || 0).toLocaleString()} likes</strong>
         </div>
 
         <div className="post-caption">

@@ -42,15 +42,6 @@ export const AuthProvider = ({ children }) => {
                 }
             }
 
-            // Check for Demo User override
-            const demoUser = localStorage.getItem('demo_user');
-            if (demoUser) {
-                console.log('Using Demo User');
-                setUser(JSON.parse(demoUser));
-                setIsLoading(false);
-                return;
-            }
-
             const currentUser = await getCurrentUser();
             const attributes = await fetchUserAttributes();
             

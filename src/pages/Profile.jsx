@@ -58,8 +58,8 @@ const Profile = () => {
 
           <ul className="profile-stats">
             <li><strong>{userPostCount}</strong> posts</li>
-            <li><strong>{profileUser.followers.toLocaleString()}</strong> followers</li>
-            <li><strong>{profileUser.following}</strong> following</li>
+            <li><strong>{(profileUser.followers || 0).toLocaleString()}</strong> followers</li>
+            <li><strong>{profileUser.following || 0}</strong> following</li>
           </ul>
 
           <div className="profile-bio">
