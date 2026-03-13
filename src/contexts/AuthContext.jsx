@@ -66,14 +66,16 @@ export const AuthProvider = ({ children }) => {
                 console.log("Creating new UserProfile for:", currentUser.username);
                 const { data: newProfile, errors } = await client.models.UserProfile.create({
                     username: currentUser.username,
-                    email: attributes.email,
+                    email: attributes.email || 'no-email-provided@benstagram.net',
                     fullName: attributes.name || '',
                     bio: 'New to Benstagram',
                     avatar: '' 
                 });
                 
                 if (errors) {
-                    console.error("Error creating profile:", errors);
+                    const errorMsg = JSON.stringify(errors, null, 2);
+                    console.error("Error creating profile:", errorMsg);
+                    throw new Error(`DynamoDB Profile Creation Failed: ${errorMsg}`);
                 }
                 userProfile = newProfile;
             }
