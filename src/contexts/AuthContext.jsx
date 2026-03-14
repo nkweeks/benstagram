@@ -46,17 +46,72 @@ export const AuthProvider = ({ children }) => {
             const attributes = await fetchUserAttributes();
             
             // Try to fetch existing profile from DynamoDB
-            const { data: profiles } = await client.models.UserProfile.list({
+            let { data: profiles } = await client.models.UserProfile.list({
                 filter: { username: { eq: currentUser.username } }
             });
 
+            // If not found by Cognito ID, try fetching by email (for renamed Google users)
+            if (profiles.length === 0 && attributes.email) {
+                const { data: emailProfiles } = await client.models.UserProfile.list({
+                    filter: { email: { eq: attributes.email } }
+                });
+                profiles = emailProfiles;
+            }
+
             let userProfile = profiles[0];
+
+            // Check if we need to migrate/update an existing 'google_...', generic, or UUID username
+            const isProfileUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userProfile?.username || '');
+            if (userProfile && (userProfile.username.toLowerCase().includes('google') || userProfile.username.includes('_') || isProfileUUID)) {
+                let friendlyUsername = attributes.preferred_username || userProfile.username;
+                
+                const isPreferredBad = friendlyUsername.toLowerCase().includes('google') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
+                if (friendlyUsername === userProfile.username || isPreferredBad) {
+                    if (attributes.email) {
+                        friendlyUsername = attributes.email.split('@')[0];
+                    } else if (attributes.name) {
+                        friendlyUsername = attributes.name.replace(/\s+/g, '').toLowerCase();
+                    }
+                }
+                
+                if (friendlyUsername !== userProfile.username) {
+                    console.log("Migrating generic Google username to:", friendlyUsername);
+                    const { data: updatedProfile, errors } = await client.models.UserProfile.update({
+                        id: userProfile.id,
+                        username: friendlyUsername
+                    });
+                    if (!errors && updatedProfile) {
+                        userProfile = updatedProfile;
+                    }
+                }
+            }
 
             if (!userProfile) {
                 // If no profile exists (first login), create one
-                console.log("Creating new UserProfile for:", currentUser.username);
+                let friendlyUsername = attributes.preferred_username || currentUser.username;
+                const isGoogleOrGeneric = friendlyUsername.toLowerCase().includes('google') || friendlyUsername.includes('_');
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
+                
+                if (isGoogleOrGeneric || isUUID) {
+                    const isPreferredBad = attributes.preferred_username && (attributes.preferred_username.toLowerCase().includes('google') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attributes.preferred_username));
+                    if (attributes.preferred_username && !isPreferredBad) {
+                        friendlyUsername = attributes.preferred_username;
+                    } else if (attributes.email) {
+                        friendlyUsername = attributes.email.split('@')[0];
+                    } else if (attributes.name) {
+                        friendlyUsername = attributes.name.replace(/\s+/g, '').toLowerCase();
+                    }
+                }
+                
+                // Final safety check to ensure it isn't still the raw Google ID or UUID
+                const isFinalUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
+                if (friendlyUsername === currentUser.username && (friendlyUsername.includes('google') || isFinalUUID)) {
+                     friendlyUsername = `user${Math.floor(Math.random() * 10000)}`;
+                }
+
+                console.log("Creating new UserProfile for:", friendlyUsername);
                 const { data: newProfile, errors } = await client.models.UserProfile.create({
-                    username: currentUser.username,
+                    username: friendlyUsername,
                     email: attributes.email || 'no-email-provided@benstagram.net',
                     fullName: attributes.name || '',
                     bio: 'New to Benstagram',
