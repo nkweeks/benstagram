@@ -57,7 +57,7 @@ const Sidebar = ({ onCreateClick }) => {
           <Link to={profileLink} className={`nav-item ${isActive(profileLink) ? 'active' : ''}`}>
             <div className="profile-icon">
                {user?.avatar ? (
-                   <img src={user.avatar} alt="Profile" className="sidebar-profile-img" style={{width: '24px', height: '24px', borderRadius: '50%'}} />
+                   <img src={user.avatarUrl || user.avatar || '/default-avatar.png'} alt="Profile" className="sidebar-profile-img" style={{width: '24px', height: '24px', borderRadius: '50%'}} />
                ) : (
                    <div className="sidebar-avatar-placeholder" /> 
                )}
