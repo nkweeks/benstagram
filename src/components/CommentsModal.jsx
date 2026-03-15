@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Send } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import './CommentsModal.css';
@@ -44,7 +45,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
     setCommentText('');
   };
 
-  return (
+  const modalContent = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container comments-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
@@ -107,6 +108,8 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default CommentsModal;
