@@ -179,3 +179,66 @@
     flex-basis: auto;
   }
 }
+
+/* Edit Profile Styles */
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  width: 100%;
+}
+
+.edit-form-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.edit-form-group label {
+  font-weight: 600;
+  font-size: 14px;
+  width: 80px;
+}
+
+.edit-input {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  width: 100%;
+  max-width: 300px;
+}
+
+.edit-input:focus {
+  outline: none;
+  border-color: var(--color-text-secondary);
+}
+
+.bio-name-input {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.bio-text-input {
+  resize: vertical;
+  min-height: 60px;
+  line-height: 1.5;
+}
+
+.edit-form-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xs);
+}
+
+.edit-save-icon {
+  background-color: var(--color-accent-primary);
+  color: white;
+}
+
+.edit-cancel-icon {
+  background-color: var(--color-bg-secondary);
+}

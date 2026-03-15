@@ -1,13 +1,23 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Grid, Bookmark, User as UserIcon } from 'lucide-react';
+import { Grid, Bookmark, User as UserIcon, Edit2, Check, X } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
+import { useAuth } from '../contexts/AuthContext';
 import './Profile.css';
 
 const Profile = () => {
   const { username } = useParams();
   const { users, posts, currentUser } = useFeed();
+  const { updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('POSTS');
+  
+  // Edit state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    username: '',
+    fullName: '',
+    bio: ''
+  });
   
   // Find user by username
   let profileUser = Object.values(users).find(u => u.username === username);
@@ -20,6 +30,31 @@ const Profile = () => {
   if (!profileUser) return <div className="profile-container">User not found</div>;
 
   const isCurrentUser = currentUser?.id === profileUser.id;
+
+  const handleEditClick = () => {
+    setEditForm({
+      username: profileUser.username || '',
+      fullName: profileUser.fullName || '',
+      bio: profileUser.bio || ''
+    });
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleSaveEdit = async () => {
+    if (updateUser) {
+      // Don't update username if it's an empty string
+      const updates = { ...editForm };
+      if (!updates.username.trim()) {
+        delete updates.username;
+      }
+      await updateUser(updates);
+    }
+    setIsEditing(false);
+  };
 
   // Filter posts based on active tab
   let displayPosts = [];
@@ -38,23 +73,41 @@ const Profile = () => {
     <div className="profile-container">
       <header className="profile-header">
         <div className="profile-avatar-container">
-          <img src={profileUser.avatar} alt={profileUser.username} className="profile-avatar-img" />
+          <img src={profileUser.avatarUrl || profileUser.avatar || '/default-avatar.png'} alt={profileUser.username} className="profile-avatar-img" />
         </div>
         
         <section className="profile-details">
-          <div className="profile-title-row">
-            <h2 className="profile-username">{profileUser.username}</h2>
-            <div className="profile-actions">
-              {isCurrentUser ? (
-                 <button className="btn-secondary">Edit Profile</button>
-              ) : (
-                <>
-                  <button className="btn-primary">Follow</button>
-                  <button className="btn-secondary">Message</button>
-                </>
-              )}
+          {isEditing ? (
+            <div className="profile-edit-form">
+              <div className="edit-form-group">
+                <label>Username</label>
+                <input 
+                  type="text" 
+                  value={editForm.username} 
+                  onChange={e => setEditForm({...editForm, username: e.target.value})}
+                  className="edit-input"
+                />
+              </div>
+              <div className="edit-form-actions">
+                <button onClick={handleSaveEdit} className="btn-primary edit-save-icon" title="Save">Save</button>
+                <button onClick={handleCancelEdit} className="btn-secondary edit-cancel-icon" title="Cancel">Cancel</button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="profile-title-row">
+              <h2 className="profile-username">{profileUser.username}</h2>
+              <div className="profile-actions">
+                {isCurrentUser ? (
+                   <button className="btn-secondary" onClick={handleEditClick}>Edit Profile</button>
+                ) : (
+                  <>
+                    <button className="btn-primary">Follow</button>
+                    <button className="btn-secondary">Message</button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           <ul className="profile-stats">
             <li><strong>{userPostCount}</strong> posts</li>
@@ -63,10 +116,31 @@ const Profile = () => {
           </ul>
 
           <div className="profile-bio">
-            <div className="bio-name">{profileUser.fullName}</div>
-            <div className="bio-text">
-              {profileUser.bio}
-            </div>
+            {isEditing ? (
+              <>
+                <input 
+                  type="text" 
+                  value={editForm.fullName} 
+                  onChange={e => setEditForm({...editForm, fullName: e.target.value})}
+                  className="edit-input bio-name-input"
+                  placeholder="Full Name"
+                />
+                <textarea 
+                  value={editForm.bio} 
+                  onChange={e => setEditForm({...editForm, bio: e.target.value})}
+                  className="edit-input bio-text-input"
+                  placeholder="Bio"
+                  rows={3}
+                />
+              </>
+            ) : (
+              <>
+                <div className="bio-name">{profileUser.fullName}</div>
+                <div className="bio-text">
+                  {profileUser.bio}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </header>

@@ -62,10 +62,10 @@ export const AuthProvider = ({ children }) => {
 
             // Check if we need to migrate/update an existing 'google_...', generic, or UUID username
             const isProfileUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userProfile?.username || '');
-            if (userProfile && (userProfile.username.toLowerCase().includes('google') || userProfile.username.includes('_') || isProfileUUID)) {
+            if (userProfile && (userProfile.username.toLowerCase().startsWith('google_') || isProfileUUID)) {
                 let friendlyUsername = attributes.preferred_username || userProfile.username;
                 
-                const isPreferredBad = friendlyUsername.toLowerCase().includes('google') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
+                const isPreferredBad = friendlyUsername.toLowerCase().startsWith('google_') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
                 if (friendlyUsername === userProfile.username || isPreferredBad) {
                     if (attributes.email) {
                         friendlyUsername = attributes.email.split('@')[0];
@@ -89,11 +89,11 @@ export const AuthProvider = ({ children }) => {
             if (!userProfile) {
                 // If no profile exists (first login), create one
                 let friendlyUsername = attributes.preferred_username || currentUser.username;
-                const isGoogleOrGeneric = friendlyUsername.toLowerCase().includes('google') || friendlyUsername.includes('_');
+                const isGoogleOrGeneric = friendlyUsername.toLowerCase().startsWith('google_');
                 const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
                 
                 if (isGoogleOrGeneric || isUUID) {
-                    const isPreferredBad = attributes.preferred_username && (attributes.preferred_username.toLowerCase().includes('google') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attributes.preferred_username));
+                    const isPreferredBad = attributes.preferred_username && (attributes.preferred_username.toLowerCase().startsWith('google_') || /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(attributes.preferred_username));
                     if (attributes.preferred_username && !isPreferredBad) {
                         friendlyUsername = attributes.preferred_username;
                     } else if (attributes.email) {
@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
                 
                 // Final safety check to ensure it isn't still the raw Google ID or UUID
                 const isFinalUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friendlyUsername);
-                if (friendlyUsername === currentUser.username && (friendlyUsername.includes('google') || isFinalUUID)) {
+                if (friendlyUsername.toLowerCase().startsWith('google_') || (friendlyUsername === currentUser.username && isFinalUUID)) {
                      friendlyUsername = `user${Math.floor(Math.random() * 10000)}`;
                 }
 
