@@ -10,10 +10,25 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
 
   const post = posts.find(p => p.id === postId);
   
-  // Scroll to bottom when comments change
+  const [hasScrolledInitial, setHasScrolledInitial] = useState(false);
+
+  // Scroll to bottom when new comments are added, but preserve scroll on open
   useEffect(() => {
-    if (isOpen && commentsEndRef.current) {
-      commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (isOpen && commentsEndRef.current && commentText === '') {
+      if (!hasScrolledInitial) {
+          // Delay single initial scroll slightly to allow render
+          setTimeout(() => {
+             commentsEndRef.current?.scrollIntoView({ behavior: 'auto' });
+             setHasScrolledInitial(true);
+          }, 50);
+      }
+    } else if (isOpen && commentsEndRef.current && commentText !== '') {
+       // Only smooth scroll when actively typing/submitting a new comment
+       commentsEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    if (!isOpen) {
+        setHasScrolledInitial(false);
     }
   }, [post?.comments, isOpen]);
 
