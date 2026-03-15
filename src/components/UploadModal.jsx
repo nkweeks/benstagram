@@ -104,7 +104,7 @@ const UploadModal = ({ isOpen, onClose }) => {
               </div>
               <div className="upload-details">
                 <div className="user-info">
-                   <img src={currentUser?.avatar} alt={currentUser?.username} className="user-avatar-small" />
+                   <img src={currentUser?.avatarUrl || currentUser?.avatar || '/default-avatar.png'} alt={currentUser?.username} className="user-avatar-small" />
                    <span>{currentUser?.username}</span>
                 </div>
                 <textarea 

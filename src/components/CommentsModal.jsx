@@ -42,7 +42,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
         <div className="comments-body">
           <div className="post-owner-caption">
             <div className="comment-avatar">
-              <img src={author?.avatar} alt={author?.username} />
+              <img src={author?.avatarUrl || author?.avatar || '/default-avatar.png'} alt={author?.username} />
             </div>
             <div className="comment-content">
               <span className="comment-username">{author?.username}</span>
@@ -53,11 +53,11 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
 
           <div className="comments-list">
             {post.comments && post.comments.map(comment => {
-              const commentUser = users[comment.userId] || { avatar: '', username: comment.username };
+              const commentUser = users[comment.userId] || { avatar: '/default-avatar.png', username: comment.username };
               return (
                 <div key={comment.id} className="comment-item">
                   <div className="comment-avatar">
-                    <img src={commentUser.avatar} alt={commentUser.username} />
+                    <img src={commentUser.avatarUrl || commentUser.avatar || '/default-avatar.png'} alt={commentUser.username} />
                   </div>
                   <div className="comment-content">
                     <span className="comment-username">{commentUser.username}</span>
@@ -73,7 +73,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
 
         <div className="comments-footer">
            <form className="comment-form" onSubmit={handleSubmit}>
-             <img src={currentUser?.avatar} alt="Me" className="current-user-avatar" />
+             <img src={currentUser?.avatarUrl || currentUser?.avatar || '/default-avatar.png'} alt="Me" className="current-user-avatar" />
              <input 
                type="text" 
                placeholder="Add a comment..." 

@@ -7,7 +7,7 @@ import CommentsModal from './CommentsModal';
 const Post = ({ post, author, isSaved, onLike, onSave }) => {
   const { isLiked, likes, caption, imageUrl, timestamp } = post;
   const username = author?.username || 'Unknown';
-  const avatar = author?.avatar || '';
+  const avatar = author?.avatarUrl || author?.avatar || '/default-avatar.png';
   
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
