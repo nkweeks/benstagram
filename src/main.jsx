@@ -8,10 +8,6 @@ import { AuthProvider } from './contexts/AuthContext'
 import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
 
-console.log("Loading Amplify outputs:", outputs);
-
-console.log("Loading Amplify outputs:", outputs);
-
 try {
     const isLocalhost = window.location.hostname === 'localhost';
     const isProdEnv = window.location.hostname === 'benstagram.net' || window.location.hostname === 'www.benstagram.net';
@@ -36,7 +32,6 @@ try {
     }
     
     Amplify.configure(amplifyConfig);
-    console.log("Amplify configured successfully!", Amplify.getConfig());
 } catch (e) {
     console.error("Amplify configure failed:", e);
 }

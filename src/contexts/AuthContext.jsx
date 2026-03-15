@@ -126,14 +126,19 @@ export const AuthProvider = ({ children }) => {
                 userProfile = newProfile;
             }
             
-            // Resolve Avatar URL if exists
+            // Resolve Avatar URL if exists asynchronously to avoid blocking initial render
             if (userProfile && userProfile.avatar) {
-                try {
-                    const link = await getUrl({ path: userProfile.avatar });
-                    // Provide a signed URL or public URL
-                    userProfile.avatarUrl = link.url.toString();
-                } catch (err) {
-                    console.error("Error resolving avatar:", err);
+                if (userProfile.avatar.startsWith('http') || userProfile.avatar.startsWith('/')) {
+                    userProfile.avatarUrl = userProfile.avatar;
+                } else {
+                    userProfile.avatarUrl = null;
+                    getUrl({ path: userProfile.avatar })
+                        .then(link => {
+                            if (link && link.url) {
+                                setUser(prev => prev ? { ...prev, avatarUrl: link.url.toString() } : null);
+                            }
+                        })
+                        .catch(err => console.error("Error resolving avatar:", err));
                 }
             } else if (userProfile) {
                  userProfile.avatarUrl = null; 
