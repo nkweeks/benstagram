@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Link as LinkIcon, Trash2 } from 'lucide-react';
 import './Post.css';
 
 import CommentsModal from './CommentsModal';
+import { useAuth } from '../contexts/AuthContext';
+import { useFeed } from '../contexts/FeedContext';
 
 const Post = ({ post, author, isSaved, onLike, onSave }) => {
   const { isLiked, likes, caption, imageUrl, timestamp } = post;
@@ -10,10 +12,41 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
   const avatar = author?.avatarUrl || author?.avatar || '/default-avatar.png';
   
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  const { user: currentUser } = useAuth();
+  const { deletePost } = useFeed();
+
+  const isOwner = currentUser?.id === post.userId;
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`).catch(() => {});
+    setIsMenuOpen(false);
+    alert('Link copied!');
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Delete this post?")) {
+      deletePost(post.id);
+    }
+    setIsMenuOpen(false);
+  };
 
   return (
     <article className="post">
-      <div className="post-header">
+      <div className="post-header" ref={menuRef}>
         <div className="post-user">
           <div className="post-avatar">
             <img src={avatar} alt={username} />
@@ -21,9 +54,23 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
           <span className="post-username">{username}</span>
           <span className="post-time">• {timestamp}</span>
         </div>
-        <button className="post-options">
+        
+        <button className="post-options" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <MoreHorizontal size={20} />
         </button>
+
+        {isMenuOpen && (
+          <div className="post-dropdown">
+            {isOwner && (
+              <button className="dropdown-item danger" onClick={handleDelete}>
+                <Trash2 size={16} /> Delete
+              </button>
+            )}
+            <button className="dropdown-item" onClick={handleCopyLink}>
+              <LinkIcon size={16} /> Copy Link
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="post-image" onDoubleClick={onLike}>

@@ -108,6 +108,10 @@ export const FeedProvider = ({ children }) => {
     updateUser({ savedPostIds: newSavedIds });
   };
 
+  const deletePost = (postId) => {
+    setPosts(prev => prev.filter(post => post.id !== postId));
+  };
+
   const value = {
     posts,
     users,
@@ -115,7 +119,8 @@ export const FeedProvider = ({ children }) => {
     toggleLike,
     toggleSave,
     addPost,
-    addComment
+    addComment,
+    deletePost
   };
 
   return (
