@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Grid, Bookmark, User as UserIcon, Edit2, Check, X } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,6 +7,7 @@ import './Profile.css';
 
 const Profile = () => {
   const { username } = useParams();
+  const navigate = useNavigate();
   const { users, posts, currentUser } = useFeed();
   const { updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('POSTS');
@@ -46,12 +47,19 @@ const Profile = () => {
 
   const handleSaveEdit = async () => {
     if (updateUser) {
-      // Don't update username if it's an empty string
       const updates = { ...editForm };
+      
+      // Don't update username if it's an empty string
       if (!updates.username.trim()) {
         delete updates.username;
       }
+      
       await updateUser(updates);
+      
+      // If username changed successfully, redirect to the new URL
+      if (updates.username && updates.username !== profileUser.username) {
+          navigate(`/profile/${updates.username}`);
+      }
     }
     setIsEditing(false);
   };
