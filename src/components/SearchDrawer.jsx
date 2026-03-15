@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Search as SearchIcon } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import './SearchDrawer.css';
@@ -7,6 +8,7 @@ const SearchDrawer = ({ isOpen, onClose }) => {
   const { users, posts } = useFeed();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState({ users: [], posts: [] });
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!query.trim()) {
@@ -31,6 +33,11 @@ const SearchDrawer = ({ isOpen, onClose }) => {
   }, [query, users, posts]);
 
   if (!isOpen) return null;
+
+  const handleUserClick = (username) => {
+    navigate(`/profile/${username}`);
+    onClose();
+  };
 
   return (
     <div className={`search-drawer ${isOpen ? 'open' : ''}`}>
@@ -65,8 +72,13 @@ const SearchDrawer = ({ isOpen, onClose }) => {
           <div className="results-section">
             <h4>Users</h4>
             {results.users.map(user => (
-              <div key={user.id} className="result-item user-result">
-                <img src={user.avatar} alt={user.username} className="result-avatar" />
+              <div 
+                key={user.id} 
+                className="result-item user-result" 
+                onClick={() => handleUserClick(user.username)}
+                style={{ cursor: 'pointer' }}
+              >
+                <img src={user.avatarUrl || user.avatar || '/default-avatar.png'} alt={user.username} className="result-avatar" />
                 <div className="result-info">
                   <span className="result-main">{user.username}</span>
                   <span className="result-sub">{user.fullName}</span>
@@ -79,14 +91,21 @@ const SearchDrawer = ({ isOpen, onClose }) => {
         {results.posts.length > 0 && (
           <div className="results-section">
             <h4>Posts</h4>
-            {results.posts.map(post => (
-              <div key={post.id} className="result-item post-result">
+            {results.posts.map(post => {
+              const postAuthor = users[post.userId];
+              return (
+              <div 
+                key={post.id} 
+                className="result-item post-result"
+                onClick={() => postAuthor && handleUserClick(postAuthor.username)}
+                style={{ cursor: 'pointer' }}
+              >
                 <img src={post.imageUrl} alt="Post" className="result-thumb" />
                 <div className="result-info">
                     <span className="result-main">{post.caption.substring(0, 30)}...</span>
                 </div>
               </div>
-            ))}
+            )})}
           </div>
         )}
       </div>
