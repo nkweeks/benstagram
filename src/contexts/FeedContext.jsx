@@ -31,6 +31,16 @@ export const FeedProvider = ({ children }) => {
     // currentUser is now managed by AuthContext
   }, []);
 
+  // Ensure the current user is added to the users dictionary so their posts and comments render correctly
+  useEffect(() => {
+    if (currentUser && currentUser.id) {
+      setUsers(prevUsers => ({
+        ...prevUsers,
+        [currentUser.id]: currentUser
+      }));
+    }
+  }, [currentUser]);
+
   const toggleLike = (postId) => {
     setPosts(currentPosts => 
       currentPosts.map(post => {
