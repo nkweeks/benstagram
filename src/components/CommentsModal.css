@@ -1,6 +1,9 @@
 .comments-modal {
+  width: 100%;
+  max-width: 600px;
   height: min(90vh, 800px);
-  max-height: 800px;
+  display: flex;
+  flex-direction: column;
 }
 
 .comments-body {
@@ -15,6 +18,7 @@
 .post-owner-caption, .comment-item {
   display: flex;
   gap: var(--spacing-md);
+  align-items: flex-start;
 }
 
 .comment-avatar {
@@ -34,17 +38,29 @@
 .comment-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
   font-size: 0.9rem;
+  width: 100%;
+}
+
+.comment-text-wrapper {
+  display: inline;
 }
 
 .comment-username {
   font-weight: 600;
-  margin-right: var(--spacing-xs);
+  margin-right: var(--spacing-sm);
 }
 
 .comment-text {
   line-height: 1.4;
+  word-break: break-word;
+}
+
+.comment-time {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 4px;
 }
 
 .comment-time {
@@ -57,6 +73,15 @@
   border-top: 1px solid var(--color-border);
   padding: var(--spacing-md);
   background-color: var(--color-bg-secondary);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--spacing-sm);
 }
 
 .comment-form {
@@ -96,4 +121,24 @@
 .comment-form button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+.comments-body {
+  padding-right: 8px; /* Offset scrollbar */
+}
+
+/* Custom scrollbar for webkit */
+.comments-body::-webkit-scrollbar,
+.comments-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comments-body::-webkit-scrollbar-track,
+.comments-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.comments-body::-webkit-scrollbar-thumb,
+.comments-list::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 10px;
 }

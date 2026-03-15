@@ -45,8 +45,10 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
               <img src={author?.avatarUrl || author?.avatar || '/default-avatar.png'} alt={author?.username} />
             </div>
             <div className="comment-content">
-              <span className="comment-username">{author?.username}</span>
-              <span className="comment-text">{post.caption}</span>
+              <div className="comment-text-wrapper">
+                <span className="comment-username">{author?.username}</span>
+                <span className="comment-text">{post.caption}</span>
+              </div>
               <div className="comment-time">{post.timestamp}</div>
             </div>
           </div>
@@ -60,8 +62,10 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
                     <img src={commentUser.avatarUrl || commentUser.avatar || '/default-avatar.png'} alt={commentUser.username} />
                   </div>
                   <div className="comment-content">
-                    <span className="comment-username">{commentUser.username}</span>
-                    <span className="comment-text">{comment.text}</span>
+                    <div className="comment-text-wrapper">
+                      <span className="comment-username">{commentUser.username}</span>
+                      <span className="comment-text">{comment.text}</span>
+                    </div>
                     <div className="comment-time">{comment.timestamp}</div>
                   </div>
                 </div>
