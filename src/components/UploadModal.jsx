@@ -112,6 +112,7 @@ const UploadModal = ({ isOpen, onClose }) => {
                   placeholder="Write a caption..."
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
+                  maxLength={2200}
                 ></textarea>
                 <div className="upload-actions">
                    <button className="btn-share" onClick={handleShare}>

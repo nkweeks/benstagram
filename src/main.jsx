@@ -5,6 +5,7 @@ import './index.css'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { FeedProvider } from './contexts/FeedContext'
 import { AuthProvider } from './contexts/AuthContext'
+import { MessageProvider } from './contexts/MessageContext'
 import { Amplify } from 'aws-amplify';
 import outputs from '../amplify_outputs.json';
 
@@ -41,7 +42,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <AuthProvider>
       <ThemeProvider>
         <FeedProvider>
-          <App />
+          <MessageProvider>
+            <App />
+          </MessageProvider>
         </FeedProvider>
       </ThemeProvider>
     </AuthProvider>

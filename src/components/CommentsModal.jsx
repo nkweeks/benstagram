@@ -99,6 +99,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
                placeholder="Add a comment..." 
                value={commentText}
                onChange={(e) => setCommentText(e.target.value)}
+               maxLength={1000}
              />
              <button type="submit" disabled={!commentText.trim()}>
                Post

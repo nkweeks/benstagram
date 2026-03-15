@@ -94,6 +94,7 @@ const Profile = () => {
                   value={editForm.username} 
                   onChange={e => setEditForm({...editForm, username: e.target.value})}
                   className="edit-input"
+                  maxLength={30}
                 />
               </div>
               <div className="edit-form-actions">
@@ -132,6 +133,7 @@ const Profile = () => {
                   onChange={e => setEditForm({...editForm, fullName: e.target.value})}
                   className="edit-input bio-name-input"
                   placeholder="Full Name"
+                  maxLength={30}
                 />
                 <textarea 
                   value={editForm.bio} 
@@ -139,6 +141,7 @@ const Profile = () => {
                   className="edit-input bio-text-input"
                   placeholder="Bio"
                   rows={3}
+                  maxLength={150}
                 />
               </>
             ) : (

@@ -16,6 +16,8 @@ const schema = a.schema({
       avatar: a.string(),
       posts: a.hasMany('Post', 'userId'),
       comments: a.hasMany('Comment', 'userId'),
+      messagesSent: a.hasMany('Message', 'senderId'),
+      conversations: a.hasMany('UserConversation', 'userId'),
     })
     .authorization((allow) => [
       allow.owner(), // Owner can CRUD their own profile
@@ -50,6 +52,40 @@ const schema = a.schema({
       allow.owner(),
       allow.guest().to(['read']),
       allow.authenticated().to(['read']),
+    ]),
+
+  Conversation: a
+    .model({
+      participants: a.hasMany('UserConversation', 'conversationId'),
+      messages: a.hasMany('Message', 'conversationId'),
+      lastMessageAt: a.datetime()
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update']),
+    ]),
+
+  UserConversation: a
+    .model({
+      userId: a.id().required(),
+      user: a.belongsTo('UserProfile', 'userId'),
+      conversationId: a.id().required(),
+      conversation: a.belongsTo('Conversation', 'conversationId'),
+    })
+    .authorization((allow) => [
+      allow.owner(), // Secures the bridge table to the respective owners
+      allow.authenticated().to(['read', 'create']),
+    ]),
+
+  Message: a
+    .model({
+      text: a.string().required(),
+      conversationId: a.id().required(),
+      conversation: a.belongsTo('Conversation', 'conversationId'),
+      senderId: a.id().required(),
+      sender: a.belongsTo('UserProfile', 'senderId'),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create']),
     ]),
 });
 
