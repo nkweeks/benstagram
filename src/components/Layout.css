@@ -23,9 +23,7 @@
   .layout-content {
     margin-left: 0;
     max-width: 100%;
-    margin-bottom: 60px; /* Space for bottom nav if we move it there */
+    padding-bottom: 80px; /* Space for bottom nav to ensure last post is scrollable */
+    margin-bottom: 0;
   }
-  
-  /* If we want a bottom nav on mobile, we'd adjust Sidebar logic */
-  /* For now, just keep side nav collapsed */
 }

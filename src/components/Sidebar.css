@@ -104,6 +104,50 @@
   }
 }
 
+@media (max-width: 500px) {
+  .sidebar {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    height: 60px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding: 0;
+    border-right: none;
+    border-top: 1px solid var(--color-border);
+    background-color: var(--color-bg-primary);
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    gap: 0;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .nav-item {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+  }
+
+  .nav-item:hover {
+    background-color: transparent;
+    transform: none;
+  }
+
+  .nav-item:hover svg {
+    transform: scale(1.1);
+  }
+}
+
 .create-btn {
   background: none;
   border: none;
