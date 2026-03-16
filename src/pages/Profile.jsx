@@ -188,7 +188,12 @@ const Profile = () => {
 
       <div className="profile-grid">
         {displayPosts.map(post => (
-          <div key={post.id} className="grid-item">
+          <div 
+            key={post.id} 
+            className="grid-item profile-clickable"
+            onClick={() => navigate(`/post/${post.id}`)}
+            style={{ cursor: 'pointer' }}
+          >
             <img src={post.imageUrl} alt={post.caption} />
             <div className="grid-item-overlay">
               <span>❤️ {post.likes}</span>

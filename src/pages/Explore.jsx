@@ -1,10 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useFeed } from '../contexts/FeedContext';
 import { Heart, MessageCircle } from 'lucide-react';
 import './Explore.css';
 
 const Explore = () => {
   const { posts } = useFeed();
+  const navigate = useNavigate();
 
   // Duplicate posts to simulate a fuller grid for the demo
   // In a real app, this would fetch random posts
@@ -14,7 +16,12 @@ const Explore = () => {
     <div className="explore-container">
       <div className="explore-grid">
         {explorePosts.map((post, index) => (
-          <div key={`${post.id}-${index}`} className="explore-item">
+          <div 
+            key={`${post.id}-${index}`} 
+            className="explore-item explore-clickable"
+            onClick={() => navigate(`/post/${post.id}`)}
+            style={{ cursor: 'pointer' }}
+          >
             <img src={post.imageUrl} alt="Explore content" loading="lazy" />
             <div className="explore-overlay">
               <div className="overlay-stat">

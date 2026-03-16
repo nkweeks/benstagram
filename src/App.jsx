@@ -12,6 +12,7 @@ import Messages from './pages/Messages';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Settings from './pages/Settings';
+import PostPage from './pages/PostPage';
 import PageTransition from './components/PageTransition';
 import ProfileRouter from './components/ProfileRouter';
 
@@ -33,6 +34,7 @@ const AnimatedRoutes = () => {
           <Route path="profile" element={<ProtectedRoute><PageTransition><ProfileRouter /></PageTransition></ProtectedRoute>} />
           <Route path="profile/" element={<ProtectedRoute><PageTransition><ProfileRouter /></PageTransition></ProtectedRoute>} />
           <Route path="profile/:username" element={<ProtectedRoute><PageTransition><Profile /></PageTransition></ProtectedRoute>} />
+          <Route path="post/:postId" element={<ProtectedRoute><PageTransition><PostPage /></PageTransition></ProtectedRoute>} />
           <Route path="*" element={<ProtectedRoute><PageTransition><Feed /></PageTransition></ProtectedRoute>} />
         </Route>
       </Routes>
