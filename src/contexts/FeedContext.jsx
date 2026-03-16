@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { POSTS, USERS, CURRENT_USER_ID } from '../data/mockData';
+import { generateClient } from 'aws-amplify/data';
 import { useAuth } from './AuthContext';
 
+const client = generateClient();
 const FeedContext = createContext();
 
 export const useFeed = () => {
@@ -15,41 +16,58 @@ export const useFeed = () => {
 export const FeedProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState({});
-  const { user: currentUser, updateUser } = useAuth(); // Get currentUser and updater from AuthContext
+  const { user: currentUser, updateUser } = useAuth(); 
 
+  // Load and Subscribe to Real-Time Feed Data
   useEffect(() => {
-    // Simulate fetching data
-    setPosts(POSTS);
-    
-    // Create a map of users for easy lookup
-    const userMap = USERS.reduce((acc, user) => {
-      acc[user.id] = user;
-      return acc;
-    }, {});
-    setUsers(userMap);
-    
-    // currentUser is now managed by AuthContext
+    // 1. Subscribe to Live Posts
+    const subPosts = client.models.Post.observeQuery().subscribe({
+      next: ({ items }) => {
+        // Sort newest posts first
+        const sorted = [...items].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        // Need to simulate timestamps for UI since createdAt is an ISO 8601 string in DynamoDB
+        const postsWithTime = sorted.map(post => {
+            const date = new Date(post.createdAt);
+            const now = new Date();
+            const diffMin = Math.round((now - date) / 60000);
+            const t = diffMin < 60 ? `${diffMin}m` : diffMin < 1440 ? `${Math.floor(diffMin/60)}h` : `${Math.floor(diffMin/1440)}d`;
+            
+            return {
+                ...post,
+                timestamp: t === '0m' ? 'Just now' : t
+            };
+        });
+        setPosts(postsWithTime);
+      },
+      error: (error) => console.error("Error subscribing to posts:", error)
+    });
+
+    // 2. Subscribe to Live Users to build an active user map
+    const subUsers = client.models.UserProfile.observeQuery().subscribe({
+        next: ({ items }) => {
+            const userMap = items.reduce((acc, user) => {
+                acc[user.username] = user; // Fallback map by username
+                acc[user.id] = user;       // Map by ID
+                return acc;
+            }, {});
+            setUsers(userMap);
+        },
+        error: (error) => console.error("Error subscribing to users:", error)
+    });
+
+    return () => {
+      subPosts.unsubscribe();
+      subUsers.unsubscribe();
+    };
   }, []);
 
-  // Ensure the current user is added to the users dictionary so their posts and comments render correctly
-  useEffect(() => {
-    if (currentUser && currentUser.id) {
-      setUsers(prevUsers => ({
-        ...prevUsers,
-        [currentUser.id]: currentUser
-      }));
-    }
-  }, [currentUser]);
-
-  const toggleLike = (postId) => {
+  const toggleLike = async (postId) => {
+    if (!currentUser) return;
+    
+    // Optimistic UI update
     setPosts(currentPosts => 
       currentPosts.map(post => {
         if (post.id === postId) {
-          // Check if already liked (mocking this logic for now)
-          // In a real app, we'd check if currentUser.id is in post.likes array
-          // Here we'll just toggle a boolean 'isLiked' if we had one, or increment/decrement count
-          // Let's assume for this mock that we are just incrementing/decrementing random state
-          // For a better mock, let's add an 'isLiked' property to the post state
           const isLiked = post.isLiked || false;
           return {
             ...post,
@@ -60,41 +78,39 @@ export const FeedProvider = ({ children }) => {
         return post;
       })
     );
+
+    try {
+        const postToUpdate = posts.find(p => p.id === postId);
+        if (postToUpdate) {
+            const isLiked = postToUpdate.isLiked;
+            await client.models.Post.update({
+                id: postId,
+                likes: isLiked ? postToUpdate.likes - 1 : postToUpdate.likes + 1
+            });
+        }
+    } catch (e) {
+        console.error("Failed to update like", e);
+    }
   };
 
-  const addPost = (newPost) => {
-    setPosts(prev => [newPost, ...prev]);
-  };
-
-  const addComment = (postId, commentText) => {
+  const addComment = async (postId, commentText) => {
     if (!currentUser) return;
     
-    // Create new comment object
-    const newComment = {
-      id: `c_${Date.now()}`,
-      userId: currentUser.id,
-      username: currentUser.username,
-      text: commentText,
-      timestamp: 'Just now'
-    };
-
-    setPosts(currentPosts => 
-      currentPosts.map(post => {
-        if (post.id === postId) {
-          return {
-            ...post,
-            comments: [...(post.comments || []), newComment]
-          };
-        }
-        return post;
-      })
-    );
+    try {
+        await client.models.Comment.create({
+            text: commentText,
+            postId: postId,
+            userId: currentUser.id
+        });
+        // Subscription will automatically fetch and push the new comment into the specific Post
+    } catch (e) {
+        console.error("Failed to add comment:", e);
+    }
   };
 
-  const toggleSave = (postId) => {
+  const toggleSave = async (postId) => {
     if (!currentUser) return;
 
-    // Check if already saved
     const savedIds = currentUser.savedPostIds || [];
     const isSaved = savedIds.includes(postId);
     
@@ -105,11 +121,16 @@ export const FeedProvider = ({ children }) => {
       newSavedIds = [...savedIds, postId];
     }
     
+    // Update local UI immediately through AuthContext
     updateUser({ savedPostIds: newSavedIds });
   };
 
-  const deletePost = (postId) => {
-    setPosts(prev => prev.filter(post => post.id !== postId));
+  const deletePost = async (postId) => {
+    try {
+        await client.models.Post.delete({ id: postId });
+    } catch (e) {
+        console.error("Failed to delete post:", e);
+    }
   };
 
   const value = {
@@ -118,7 +139,7 @@ export const FeedProvider = ({ children }) => {
     currentUser,
     toggleLike,
     toggleSave,
-    addPost,
+    // Note: addPost is no longer exposed here since UploadModal imports client.models directly
     addComment,
     deletePost
   };

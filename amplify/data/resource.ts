@@ -18,6 +18,7 @@ const schema = a.schema({
       comments: a.hasMany('Comment', 'userId'),
       messagesSent: a.hasMany('Message', 'senderId'),
       conversations: a.hasMany('UserConversation', 'userId'),
+      savedPostIds: a.string().array(),
     })
     .authorization((allow) => [
       allow.owner(), // Owner can CRUD their own profile

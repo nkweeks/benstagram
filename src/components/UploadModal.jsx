@@ -1,14 +1,19 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
-import { useFeed } from '../contexts/FeedContext';
+import { useAuth } from '../contexts/AuthContext';
+import { uploadData, getUrl } from 'aws-amplify/storage';
+import { generateClient } from 'aws-amplify/data';
 import './UploadModal.css';
+
+const client = generateClient();
 
 const UploadModal = ({ isOpen, onClose }) => {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState(null);
   const [caption, setCaption] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const inputRef = useRef(null);
-  const { addPost, currentUser } = useFeed();
+  const { user: currentUser } = useAuth();
 
   if (!isOpen) return null;
 
@@ -42,25 +47,40 @@ const UploadModal = ({ isOpen, onClose }) => {
     inputRef.current.click();
   };
 
-  const handleShare = () => {
-    if (!file || !currentUser) return;
+  const handleShare = async () => {
+    if (!file || !currentUser || isUploading) return;
+    setIsUploading(true);
 
-    const newPost = {
-      id: `post_${Date.now()}`,
-      userId: currentUser.id,
-      imageUrl: URL.createObjectURL(file), // Temporary URL for mock
-      caption: caption,
-      likes: 0,
-      comments: [],
-      timestamp: 'Just now'
-    };
+    try {
+      // 1. Upload the physical image block to S3 Storage
+      const filename = `${Date.now()}_${file.name}`;
+      await uploadData({
+        path: `public/post-images/${filename}`,
+        data: file
+      }).result;
 
-    addPost(newPost);
-    
-    // Reset and close
-    setFile(null);
-    setCaption('');
-    onClose();
+      // 2. Fetch the newly created public accessible S3 Path
+      const urlInfo = await getUrl({ path: `public/post-images/${filename}` });
+      const imageUrl = urlInfo.url.toString();
+
+      // 3. Inject the Post document directly into the real DynamoDB Database
+      await client.models.Post.create({
+        caption: caption,
+        imageUrl: imageUrl,
+        userId: currentUser.id,
+        likes: 0
+      });
+
+      // Reset UI state upon successful network transaction
+      setFile(null);
+      setCaption('');
+      onClose();
+    } catch (error) {
+      console.error('Error uploading post:', error);
+      alert('Failed to upload post. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -115,8 +135,8 @@ const UploadModal = ({ isOpen, onClose }) => {
                   maxLength={2200}
                 ></textarea>
                 <div className="upload-actions">
-                   <button className="btn-share" onClick={handleShare}>
-                     Share
+                   <button className="btn-share" onClick={handleShare} disabled={isUploading}>
+                     {isUploading ? 'Sharing...' : 'Share'}
                    </button>
                 </div>
               </div>
