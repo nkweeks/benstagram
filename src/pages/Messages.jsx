@@ -54,8 +54,8 @@ const Messages = () => {
     };
 
     return (
-        <div className="messages-container">
-            <div className="messages-sidebar">
+        <div className={`messages-container ${activeChatId ? 'chat-active' : ''}`}>
+            <div className={`messages-sidebar ${activeChatId ? 'hidden-on-mobile' : ''}`}>
                 <div className="messages-header">
                     <h3>{currentUser?.username || 'Messages'}</h3>
                 </div>
@@ -92,11 +92,14 @@ const Messages = () => {
                 </div>
             </div>
 
-            <div className="chat-window">
+            <div className={`chat-window ${!activeChatId ? 'hidden-on-mobile' : ''}`}>
                 {activeChatId && activeUser ? (
                     <>
                         <div className="chat-header">
                             <div className="chat-user-info">
+                                <button className="mobile-back-btn" onClick={() => setActiveChatId(null)}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                </button>
                                 <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} alt={activeUser.username} className="chat-header-avatar" />
                                 <span>{activeUser.fullName || activeUser.username}</span>
                             </div>
