@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Link as LinkIcon, Trash2 } from 'lucide-react';
 import './Post.css';
 
@@ -14,7 +15,8 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-
+  
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { deletePost } = useFeed();
 
@@ -42,6 +44,30 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
       deletePost(post.id);
     }
     setIsMenuOpen(false);
+  };
+
+  const renderCaption = (text) => {
+    if (!text) return null;
+    // Split by @username pattern
+    const parts = text.split(/(@[a-zA-Z0-9_.-]+)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('@')) {
+        const mentionedUser = part.substring(1);
+        return (
+          <span 
+            key={index} 
+            className="mention" 
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/profile/${mentionedUser}`);
+            }}
+          >
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
   };
 
   return (
@@ -106,7 +132,7 @@ const Post = ({ post, author, isSaved, onLike, onSave }) => {
         </div>
 
         <div className="post-caption">
-          <strong>{username}</strong> {caption}
+          <strong>{username}</strong> {renderCaption(caption)}
         </div>
 
         <div className="post-comments-link" onClick={() => setIsCommentsOpen(true)}>

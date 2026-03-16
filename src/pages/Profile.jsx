@@ -71,7 +71,11 @@ const Profile = () => {
   } else if (activeTab === 'SAVED' && isCurrentUser) {
       displayPosts = posts.filter(p => (profileUser.savedPostIds || []).includes(p.id));
   } else if (activeTab === 'TAGGED') {
-      displayPosts = []; // Placeholder for now
+      // Find posts where the caption contains @username
+      // Escape username to safely use in regex
+      const escapedUsername = profileUser.username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const tagRegex = new RegExp(`@${escapedUsername}\\b`, 'i');
+      displayPosts = posts.filter(p => p.caption && tagRegex.test(p.caption));
   }
   
   // Helper to count posts without filtering

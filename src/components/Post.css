@@ -175,3 +175,14 @@
   font-weight: 600;
 }
 
+.mention {
+  color: var(--color-primary, #0095f6);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.mention:hover {
+  text-decoration: underline;
+}
+
