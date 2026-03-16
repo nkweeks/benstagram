@@ -46,9 +46,9 @@ const Feed = () => {
         <div className="story-wrapper">
           <div className="story-circle">
             <div className="story-ring"></div>
-            <img src="/ben-avatar-general.jpeg" alt="ben" />
+            <img src={currentUser?.avatarUrl || currentUser?.avatar || '/default-avatar.png'} alt={currentUser?.username || 'user'} />
           </div>
-          <span className="story-username">ben</span>
+          <span className="story-username">{currentUser?.username || 'user'}</span>
         </div>
         {/* Add more story placeholders if needed */}
       </div>
