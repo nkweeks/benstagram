@@ -21,6 +21,8 @@ const schema = a.schema({
       messagesSent: a.hasMany('Message', 'senderId'),
       conversations: a.hasMany('UserConversation', 'userId'),
       savedPostIds: a.string().array(),
+      callsInitiated: a.hasMany('CallSignal', 'callerId'),
+      callsReceived: a.hasMany('CallSignal', 'receiverId'),
     })
     .authorization((allow) => [
       allow.owner(), // Owner can CRUD their own profile
@@ -113,6 +115,19 @@ const schema = a.schema({
     })
     .authorization((allow) => [
       allow.authenticated().to(['read', 'create']),
+    ]),
+
+  CallSignal: a
+    .model({
+      callerId: a.id().required(),
+      caller: a.belongsTo('UserProfile', 'callerId'),
+      receiverId: a.id().required(),
+      receiver: a.belongsTo('UserProfile', 'receiverId'),
+      type: a.string().required(),
+      payload: a.string().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete']),
     ]),
 });
 
