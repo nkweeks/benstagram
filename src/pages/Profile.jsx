@@ -4,6 +4,7 @@ import { Grid, Bookmark, User as UserIcon, Edit2, Check, X } from 'lucide-react'
 import { useFeed } from '../contexts/FeedContext';
 import { useAuth } from '../contexts/AuthContext';
 import { generateClient } from 'aws-amplify/data';
+import UserListModal from '../components/UserListModal';
 import './Profile.css';
 
 const client = generateClient();
@@ -107,6 +108,11 @@ const Profile = () => {
   // Helper to count posts without filtering
   const userPostCount = posts.filter(p => p.userId === profileUser?.id).length;
 
+  const followersList = follows.filter(f => f.followingId === profileUser?.id).map(f => f.followerId);
+  const followingList = follows.filter(f => f.followerId === profileUser?.id).map(f => f.followingId);
+  
+  const [modalState, setModalState] = useState({ isOpen: false, type: null, userIds: [] });
+
   return (
     <div className="profile-container">
       <header className="profile-header">
@@ -155,8 +161,8 @@ const Profile = () => {
 
           <ul className="profile-stats">
             <li><strong>{userPostCount}</strong> posts</li>
-            <li><strong>{followerCount.toLocaleString()}</strong> followers</li>
-            <li><strong>{followingCount.toLocaleString()}</strong> following</li>
+            <li onClick={() => setModalState({ isOpen: true, type: 'Followers', userIds: followersList })} style={{ cursor: 'pointer' }}><strong>{followerCount.toLocaleString()}</strong> followers</li>
+            <li onClick={() => setModalState({ isOpen: true, type: 'Following', userIds: followingList })} style={{ cursor: 'pointer' }}><strong>{followingCount.toLocaleString()}</strong> following</li>
           </ul>
 
           <div className="profile-bio">
@@ -239,6 +245,13 @@ const Profile = () => {
           </div>
         )}
       </div>
+
+      <UserListModal 
+         isOpen={modalState.isOpen}
+         onClose={() => setModalState({ isOpen: false, type: null, userIds: [] })}
+         title={modalState.type}
+         userIds={modalState.userIds}
+      />
     </div>
   );
 };
