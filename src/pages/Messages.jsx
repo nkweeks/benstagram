@@ -108,7 +108,15 @@ const Messages = () => {
                                 <button className="mobile-back-btn" onClick={() => setActiveChatId(null)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                                 </button>
-                                <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} alt={activeUser.username} onClick={() => window.location.href = `/profile/${activeUser.username}`} className="chat-header-avatar" style={{cursor: 'pointer'}} title="View Profile" />
+                                <img 
+                                    src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} 
+                                    alt={activeUser.username} 
+                                    onClick={() => window.location.href = `/profile/${activeUser.username}`} 
+                                    className="chat-header-avatar" 
+                                    style={{cursor: 'pointer'}} 
+                                    title="View Profile" 
+                                    onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+                                />
                                 <span onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{cursor: 'pointer'}} title="View Profile">{activeUser.fullName || activeUser.username}</span>
                             </div>
                             <div className="chat-actions">
@@ -138,7 +146,13 @@ const Messages = () => {
                                 return (
                                 <div key={msg.id} style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', width: '100%', justifyContent: isSent ? 'flex-end' : 'flex-start', marginBottom: '12px' }}>
                                     {!isSent && activeUser && (
-                                        <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer' }} alt={activeUser.username} />
+                                        <img 
+                                            src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} 
+                                            onClick={() => window.location.href = `/profile/${activeUser.username}`} 
+                                            style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer' }} 
+                                            alt={activeUser.username} 
+                                            onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+                                        />
                                     )}
                                     <div className={`message-bubble ${isSent ? 'sent' : 'received'}`} style={{ margin: 0 }}>
                                         {msg.text}

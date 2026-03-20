@@ -116,7 +116,12 @@ const Profile = () => {
     <div className="profile-container">
       <header className="profile-header">
         <div className="profile-avatar-container">
-          <img src={profileUser.avatarUrl || profileUser.avatar || '/default-avatar.png'} alt={profileUser.username} className="profile-avatar-img" />
+          <img 
+            src={profileUser.avatarUrl || profileUser.avatar || '/default-avatar.png'} 
+            alt={profileUser.username} 
+            className="profile-avatar-img" 
+            onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+          />
         </div>
         
         <section className="profile-details">
