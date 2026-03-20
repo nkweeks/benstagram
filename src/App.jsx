@@ -25,6 +25,8 @@ const PageLoader = () => (
   </div>
 );
 
+import { CallProvider } from './contexts/CallContext';
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -56,7 +58,11 @@ const AnimatedRoutes = () => {
 function App() {
   return (
     <BrowserRouter>
-      <AnimatedRoutes />
+      <AuthProvider>
+        <CallProvider>
+          <AnimatedRoutes />
+        </CallProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

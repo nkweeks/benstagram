@@ -3,12 +3,14 @@ import { Send, Phone, Video, Info, Trash2 } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import { useMessage } from '../contexts/MessageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useCall } from '../contexts/CallContext';
 import './Messages.css';
 
 const Messages = () => {
     const { users } = useFeed();
     const { user: currentUser } = useAuth();
     const { conversations, messages, sendMessage, getOrCreateConversation, deleteConversation } = useMessage();
+    const { startCall } = useCall();
     
     const [activeChatId, setActiveChatId] = useState(null);
     const [inputText, setInputText] = useState('');
@@ -120,7 +122,7 @@ const Messages = () => {
                                 <span onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{cursor: 'pointer'}} title="View Profile">{activeUser.fullName || activeUser.username}</span>
                             </div>
                             <div className="chat-actions">
-                                <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Voice Call">
+                                <button onClick={() => startCall(activeUser.id)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Voice Call">
                                     <Phone size={24} />
                                 </button>
                                 <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Video Call">
