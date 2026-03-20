@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/data';
+import { getUrl } from 'aws-amplify/storage';
 import { useAuth } from './AuthContext';
 import { POSTS, USERS } from '../data/mockData';
 
@@ -101,6 +102,32 @@ export const FeedProvider = ({ children }) => {
             };
         });
         setPosts(postsWithTime);
+
+        // Asynchronously resolve image URLs
+        Promise.all(postsWithTime.map(async (post) => {
+             let path = post.imageUrl;
+             if (path && path.startsWith('http') && path.includes('post-images/')) {
+                 const match = path.match(/post-images\/[^?]+/);
+                 if (match) path = match[0];
+             }
+             
+             if (path && !path.startsWith('http') && !path.startsWith('/')) {
+                 try {
+                     const link = await getUrl({ path });
+                     return { ...post, imageUrl: link.url.toString() };
+                 } catch(e) {
+                      console.error("Failed to fetch presigned URL for post:", e);
+                 }
+             }
+             return post;
+        })).then(resolvedPosts => {
+             setPosts(currentPosts => {
+                 return currentPosts.map(cp => {
+                     const resolved = resolvedPosts.find(rp => rp.id === cp.id);
+                     return resolved ? { ...cp, imageUrl: resolved.imageUrl } : cp;
+                 });
+             });
+        });
       },
       error: (error) => console.error("Error subscribing to posts:", error)
     });

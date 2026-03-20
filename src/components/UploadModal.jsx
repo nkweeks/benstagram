@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { uploadData, getUrl } from 'aws-amplify/storage';
+import { uploadData } from 'aws-amplify/storage';
 import { generateClient } from 'aws-amplify/data';
 import './UploadModal.css';
 
@@ -59,14 +59,10 @@ const UploadModal = ({ isOpen, onClose }) => {
         data: file
       }).result;
 
-      // 2. Fetch the newly created public accessible S3 Path
-      const urlInfo = await getUrl({ path: `post-images/${filename}` });
-      const imageUrl = urlInfo.url.toString();
-
-      // 3. Inject the Post document directly into the real DynamoDB Database
+      // 2. Inject the Post document directly into the real DynamoDB Database
       await client.models.Post.create({
         caption: caption,
-        imageUrl: imageUrl,
+        imageUrl: `post-images/${filename}`,
         userId: currentUser.id,
         likes: 0
       });
