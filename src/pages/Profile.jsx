@@ -12,7 +12,7 @@ const client = generateClient();
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { users, posts, currentUser, follows, toggleFollow } = useFeed();
+  const { users, posts, currentUser, follows, toggleFollow, isDataReady } = useFeed();
   const { updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('POSTS');
   
@@ -55,6 +55,7 @@ const Profile = () => {
     };
   }, [profileUser?.id]);
 
+  if (!isDataReady) return <div className="profile-container" style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>Loading profile...</div>;
   if (!profileUser) return <div className="profile-container">User not found</div>;
 
   const isCurrentUser = currentUser?.id === profileUser.id;

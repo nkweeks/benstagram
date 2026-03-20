@@ -9,10 +9,18 @@ import './PostPage.css';
 const PostPage = () => {
   const { postId } = useParams();
   const navigate = useNavigate();
-  const { posts, users, toggleLike, toggleSave } = useFeed();
+  const { posts, users, toggleLike, toggleSave, isDataReady } = useFeed();
   const { user: currentUser } = useAuth();
 
   const post = posts.find(p => p.id === postId);
+
+  if (!isDataReady) {
+    return (
+      <div className="post-page-container not-found" style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
+        Loading...
+      </div>
+    );
+  }
 
   if (!post) {
     return (

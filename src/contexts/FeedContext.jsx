@@ -19,6 +19,7 @@ export const FeedProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState({});
   const [follows, setFollows] = useState([]);
+  const [isDataReady, setIsDataReady] = useState(false);
   const { user: currentUser, updateUser } = useAuth(); 
 
   const isDemoAccount = currentUser?.id === 'ben';
@@ -34,6 +35,7 @@ export const FeedProvider = ({ children }) => {
             return acc;
         }, {});
         setUsers(userMap);
+        setIsDataReady(true);
         return; // Skip AWS Subscriptions entirely
     }
 
@@ -134,13 +136,14 @@ export const FeedProvider = ({ children }) => {
 
     // 2. Subscribe to Live Users to build an active user map
     const subUsers = client.models.UserProfile.observeQuery().subscribe({
-        next: ({ items }) => {
+        next: ({ items, isSynced }) => {
             const userMap = items.reduce((acc, user) => {
                 acc[user.username] = user; // Fallback map by username
                 acc[user.id] = user;       // Map by ID
                 return acc;
             }, {});
             setUsers(userMap);
+            if (isSynced) setIsDataReady(true);
         },
         error: (error) => console.error("Error subscribing to users:", error)
     });
@@ -339,7 +342,8 @@ export const FeedProvider = ({ children }) => {
     toggleSave,
     addPost, // Restored for Demo account usage
     addComment,
-    deletePost
+    deletePost,
+    isDataReady
   };
 
   return (
