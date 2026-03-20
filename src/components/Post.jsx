@@ -11,8 +11,12 @@ import { generateClient } from 'aws-amplify/data';
 const client = generateClient();
 
 const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
+  const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
+  const { deletePost } = useFeed();
+
   const [fetchedAuthor, setFetchedAuthor] = useState(null);
-  const author = initialAuthor || fetchedAuthor;
+  let author = initialAuthor || fetchedAuthor;
 
   useEffect(() => {
     if (!initialAuthor && post.userId) {
@@ -22,17 +26,30 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
     }
   }, [initialAuthor, post.userId]);
 
+  // Prefer currentUser object if this is the logged-in user to guarantee avatarUrl is resolved immediately
+  if (author && currentUser && author.id === currentUser.id) {
+      author = currentUser;
+  }
+
+  const [resolvedAvatar, setResolvedAvatar] = useState(null);
+
+  useEffect(() => {
+     if (author?.avatar && !author.avatar.startsWith('http') && !author.avatar.startsWith('/')) {
+         import('aws-amplify/storage').then(({ getUrl }) => {
+             getUrl({ path: author.avatar }).then(link => {
+                 setResolvedAvatar(link.url.toString());
+             }).catch(console.error);
+         });
+     }
+  }, [author?.avatar]);
+
   const { isLiked, likes, caption, imageUrl, timestamp } = post;
   const username = author?.username || 'Unknown';
-  const avatar = author?.avatarUrl || author?.avatar || '/default-avatar.png';
+  const avatar = resolvedAvatar || author?.avatarUrl || author?.avatar || '/default-avatar.png';
   
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-  
-  const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
-  const { deletePost } = useFeed();
 
   const isOwner = currentUser?.id === post.userId;
 
