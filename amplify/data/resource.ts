@@ -14,6 +14,8 @@ const schema = a.schema({
       fullName: a.string(),
       bio: a.string(),
       avatar: a.string(),
+      following: a.hasMany('Follow', 'followerId'),
+      followers: a.hasMany('Follow', 'followingId'),
       posts: a.hasMany('Post', 'userId'),
       comments: a.hasMany('Comment', 'userId'),
       messagesSent: a.hasMany('Message', 'senderId'),
@@ -24,6 +26,17 @@ const schema = a.schema({
       allow.owner(), // Owner can CRUD their own profile
       allow.guest().to(['read']), // Everyone can view profiles
       allow.authenticated().to(['read']),
+    ]),
+
+  Follow: a
+    .model({
+      followerId: a.id().required(),
+      follower: a.belongsTo('UserProfile', 'followerId'),
+      followingId: a.id().required(),
+      following: a.belongsTo('UserProfile', 'followingId')
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'delete'])
     ]),
 
   Post: a

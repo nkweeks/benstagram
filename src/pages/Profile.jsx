@@ -3,14 +3,20 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Grid, Bookmark, User as UserIcon, Edit2, Check, X } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import { useAuth } from '../contexts/AuthContext';
+import { generateClient } from 'aws-amplify/data';
 import './Profile.css';
+
+const client = generateClient();
 
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { users, posts, currentUser } = useFeed();
+  const { users, posts, currentUser, follows, toggleFollow } = useFeed();
   const { updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState('POSTS');
+  
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   
   // Edit state
   const [isEditing, setIsEditing] = useState(false);
@@ -33,6 +39,24 @@ const Profile = () => {
   if (!profileUser) return <div className="profile-container">User not found</div>;
 
   const isCurrentUser = currentUser?.id === profileUser.id;
+  const isFollowing = follows.some(f => f.followingId === profileUser.id);
+  
+  useEffect(() => {
+    if (!profileUser?.id) return;
+    
+    const subFollowers = client.models.Follow.observeQuery({ filter: { followingId: { eq: profileUser.id } } }).subscribe({
+        next: ({ items }) => setFollowerCount(items.length)
+    });
+
+    const subFollowing = client.models.Follow.observeQuery({ filter: { followerId: { eq: profileUser.id } } }).subscribe({
+        next: ({ items }) => setFollowingCount(items.length)
+    });
+
+    return () => {
+        subFollowers.unsubscribe();
+        subFollowing.unsubscribe();
+    };
+  }, [profileUser?.id]);
 
   const handleEditClick = () => {
     setEditForm({
@@ -116,8 +140,13 @@ const Profile = () => {
                    <button className="btn-secondary" onClick={handleEditClick}>Edit Profile</button>
                 ) : (
                   <>
-                    <button className="btn-primary">Follow</button>
-                    <button className="btn-secondary">Message</button>
+                    <button 
+                        className={isFollowing ? "btn-secondary" : "btn-primary"}
+                        onClick={() => toggleFollow(profileUser.id)}
+                    >
+                        {isFollowing ? 'Unfollow' : 'Follow'}
+                    </button>
+                    <button className="btn-secondary" onClick={() => navigate('/messages')}>Message</button>
                   </>
                 )}
               </div>
@@ -126,8 +155,8 @@ const Profile = () => {
 
           <ul className="profile-stats">
             <li><strong>{userPostCount}</strong> posts</li>
-            <li><strong>{(profileUser.followers || 0).toLocaleString()}</strong> followers</li>
-            <li><strong>{profileUser.following || 0}</strong> following</li>
+            <li><strong>{followerCount.toLocaleString()}</strong> followers</li>
+            <li><strong>{followingCount.toLocaleString()}</strong> following</li>
           </ul>
 
           <div className="profile-bio">

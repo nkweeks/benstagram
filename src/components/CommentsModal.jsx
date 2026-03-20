@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { X, Send } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import './CommentsModal.css';
@@ -8,6 +9,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
   const { posts, users, currentUser, addComment } = useFeed();
   const [commentText, setCommentText] = useState('');
   const commentsEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const post = posts.find(p => p.id === postId);
   
@@ -57,12 +59,12 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
         
         <div className="comments-body">
           <div className="post-owner-caption">
-            <div className="comment-avatar">
+            <div className="comment-avatar" onClick={() => { if (author?.username) { navigate(`/profile/${author.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>
               <img src={author?.avatarUrl || author?.avatar || '/default-avatar.png'} alt={author?.username} />
             </div>
             <div className="comment-content">
               <div className="comment-text-wrapper">
-                <span className="comment-username">{author?.username}</span>
+                <span className="comment-username" onClick={() => { if (author?.username) { navigate(`/profile/${author.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>{author?.username}</span>
                 <span className="comment-text">{post.caption}</span>
               </div>
               <div className="comment-time">{post.timestamp}</div>
@@ -74,12 +76,12 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
               const commentUser = users[comment.userId] || { avatar: '/default-avatar.png', username: comment.username };
               return (
                 <div key={comment.id} className="comment-item">
-                  <div className="comment-avatar">
+                  <div className="comment-avatar" onClick={() => { if (commentUser.username) { navigate(`/profile/${commentUser.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>
                     <img src={commentUser.avatarUrl || commentUser.avatar || '/default-avatar.png'} alt={commentUser.username} />
                   </div>
                   <div className="comment-content">
                     <div className="comment-text-wrapper">
-                      <span className="comment-username">{commentUser.username}</span>
+                      <span className="comment-username" onClick={() => { if (commentUser.username) { navigate(`/profile/${commentUser.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>{commentUser.username}</span>
                       <span className="comment-text">{comment.text}</span>
                     </div>
                     <div className="comment-time">{comment.timestamp}</div>

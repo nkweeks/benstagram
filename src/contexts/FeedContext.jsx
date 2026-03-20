@@ -17,6 +17,7 @@ export const useFeed = () => {
 export const FeedProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [users, setUsers] = useState({});
+  const [follows, setFollows] = useState([]);
   const { user: currentUser, updateUser } = useAuth(); 
 
   const isDemoAccount = currentUser?.id === 'ben';
@@ -117,11 +118,54 @@ export const FeedProvider = ({ children }) => {
         error: (error) => console.error("Error subscribing to users:", error)
     });
 
+    // 3. Subscribe to current user's Follows
+    let subFollows;
+    if (currentUser?.id && !isDemoAccount) {
+        subFollows = client.models.Follow.observeQuery({
+            filter: { followerId: { eq: currentUser.id } }
+        }).subscribe({
+            next: ({ items }) => setFollows(items),
+            error: (e) => console.error("Error fetching follows:", e)
+        });
+    }
+
     return () => {
       subPosts.unsubscribe();
       subUsers.unsubscribe();
+      if (subFollows) subFollows.unsubscribe();
     };
   }, [isDemoAccount, currentUser?.id]);
+
+  const toggleFollow = async (targetUserId) => {
+    if (!currentUser || isDemoAccount) return;
+    
+    const existingFollow = follows.find(f => f.followingId === targetUserId);
+    
+    if (existingFollow) {
+        setFollows(prev => prev.filter(f => f.id !== existingFollow.id));
+        try {
+            await client.models.Follow.delete({ id: existingFollow.id });
+        } catch (e) {
+            console.error("Failed to unfollow:", e);
+            setFollows(prev => [...prev, existingFollow]);
+        }
+    } else {
+        const tempFollow = { id: `temp_${Date.now()}`, followerId: currentUser.id, followingId: targetUserId };
+        setFollows(prev => [...prev, tempFollow]);
+        try {
+            const { data } = await client.models.Follow.create({
+                followerId: currentUser.id,
+                followingId: targetUserId
+            });
+            if (data) {
+                setFollows(prev => prev.map(f => f.id === tempFollow.id ? data : f));
+            }
+        } catch (e) {
+            console.error("Failed to follow:", e);
+            setFollows(prev => prev.filter(f => f.id !== tempFollow.id));
+        }
+    }
+  };
 
   const toggleLike = async (postId) => {
     if (!currentUser) return;
@@ -236,7 +280,9 @@ export const FeedProvider = ({ children }) => {
   const value = {
     posts,
     users,
+    follows,
     currentUser,
+    toggleFollow,
     toggleLike,
     toggleSave,
     addPost, // Restored for Demo account usage

@@ -124,6 +124,26 @@ export const AuthProvider = ({ children }) => {
                     throw new Error(`DynamoDB Profile Creation Failed: ${errorMsg}`);
                 }
                 userProfile = newProfile;
+                
+                // Send automated welcome message from General Ben
+                try {
+                    const { data: benProfiles } = await client.models.UserProfile.list({ filter: { username: { eq: 'the_ben_official' } } });
+                    if (benProfiles.length > 0) {
+                        const benProfile = benProfiles[0];
+                        const { data: conv } = await client.models.Conversation.create({ lastMessageAt: new Date().toISOString() });
+                        if (conv) {
+                            await client.models.UserConversation.create({ userId: benProfile.id, conversationId: conv.id });
+                            await client.models.UserConversation.create({ userId: newProfile.id, conversationId: conv.id });
+                            await client.models.Message.create({
+                                conversationId: conv.id,
+                                senderId: benProfile.id,
+                                text: `Welcome to Benstagram, human! 🐾 Ready your treats, maintain a good scratching posture, and enjoy the scrolling.`
+                            });
+                        }
+                    }
+                } catch (welcomeError) {
+                    console.error("Failed to send welcome message:", welcomeError);
+                }
             }
             
             // Resolve Avatar URL if exists asynchronously to avoid blocking initial render

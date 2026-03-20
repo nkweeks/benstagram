@@ -87,7 +87,7 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
   return (
     <article className="post">
       <div className="post-header" ref={menuRef}>
-        <div className="post-user">
+        <div className="post-user" onClick={(e) => { e.stopPropagation(); navigate(`/profile/${username}`); }} style={{ cursor: 'pointer' }}>
           <div className="post-avatar">
             <img src={avatar} alt={username} />
           </div>
