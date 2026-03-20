@@ -186,6 +186,11 @@ export const FeedProvider = ({ children }) => {
             });
             if (data) {
                 setFollows(prev => prev.map(f => f.id === tempFollow.id ? data : f));
+                await client.models.Notification.create({
+                    recipientId: targetUserId,
+                    senderId: currentUser.id,
+                    type: 'follow'
+                });
             }
         } catch (e) {
             console.error("Failed to follow:", e);
@@ -222,6 +227,15 @@ export const FeedProvider = ({ children }) => {
                 id: postId,
                 likes: isLiked ? postToUpdate.likes - 1 : postToUpdate.likes + 1
             });
+            
+            if (!isLiked && postToUpdate.userId !== currentUser.id) {
+                await client.models.Notification.create({
+                    recipientId: postToUpdate.userId,
+                    senderId: currentUser.id,
+                    type: 'like',
+                    targetId: postId
+                });
+            }
         }
     } catch (e) {
         console.error("Failed to update like", e);
@@ -260,6 +274,17 @@ export const FeedProvider = ({ children }) => {
             postId: postId,
             userId: currentUser.id
         });
+        
+        const targetPost = posts.find(p => p.id === postId);
+        if (targetPost && targetPost.userId !== currentUser.id) {
+            await client.models.Notification.create({
+                recipientId: targetPost.userId,
+                senderId: currentUser.id,
+                type: 'comment',
+                targetId: postId,
+                text: commentText
+            });
+        }
         // Subscription will automatically fetch and push the new comment into the specific Post
     } catch (e) {
         console.error("Failed to add comment:", e);

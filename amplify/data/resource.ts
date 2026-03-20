@@ -39,6 +39,19 @@ const schema = a.schema({
       allow.authenticated().to(['read', 'create', 'delete'])
     ]),
 
+  Notification: a
+    .model({
+      recipientId: a.id().required(),
+      senderId: a.id().required(),
+      type: a.string().required(),
+      targetId: a.id(),
+      text: a.string(),
+      isRead: a.boolean().default(false)
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read', 'create', 'update', 'delete'])
+    ]),
+
   Post: a
     .model({
       caption: a.string(),
