@@ -30,6 +30,7 @@ export const CallProvider = ({ children }) => {
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isCameraOff, setIsCameraOff] = useState(false);
   
   // Persistent refs for WebRTC callbacks
   const pcRef = useRef(null);
@@ -66,8 +67,10 @@ export const CallProvider = ({ children }) => {
                 // For MVP, if it's an offer, trigger Incoming call.
                 
                 if (signal.type === 'offer' && !activeCall && !incomingCall) {
-                    const sdp = JSON.parse(signal.payload);
-                    setIncomingCall({ callerId: signal.callerId, signalId: signal.id, sdp });
+                    const payload = JSON.parse(signal.payload);
+                    const sdp = payload.sdp || payload; // Backwards compatible with Phase 2 voice format
+                    const isVideo = payload.isVideo || false;
+                    setIncomingCall({ callerId: signal.callerId, signalId: signal.id, sdp, isVideo });
                 }
                 
                 if (signal.type === 'answer' && activeCall?.status === 'calling' && pcRef.current) {
@@ -111,8 +114,17 @@ export const CallProvider = ({ children }) => {
       }
   };
 
-  const getMedia = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  const toggleCamera = () => {
+      if (localStream) {
+          localStream.getVideoTracks().forEach(track => {
+              track.enabled = !track.enabled;
+          });
+          setIsCameraOff(!localStream.getVideoTracks()[0]?.enabled);
+      }
+  };
+
+  const getMedia = async (isVideo) => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: isVideo });
       setLocalStream(stream);
       return stream;
   };
@@ -142,11 +154,11 @@ export const CallProvider = ({ children }) => {
       return pc;
   };
 
-  const startCall = async (targetUserId) => {
+  const startCall = async (targetUserId, isVideo = false) => {
       if (activeCall || incomingCall) return;
       
       try {
-          const stream = await getMedia();
+          const stream = await getMedia(isVideo);
           const pc = initializePeerConnection(targetUserId);
           
           stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -154,15 +166,15 @@ export const CallProvider = ({ children }) => {
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
 
-          // Transmit Offer Signal
+          // Transmit Wrapped Offer Signal (includes isVideo Boolean for UI extraction!)
           await client.models.CallSignal.create({
               callerId: currentUser.id,
               receiverId: targetUserId,
               type: 'offer',
-              payload: JSON.stringify(offer)
+              payload: JSON.stringify({ sdp: offer, isVideo })
           });
 
-          setActiveCall({ remoteUserId: targetUserId, isCaller: true, status: 'calling' });
+          setActiveCall({ remoteUserId: targetUserId, isCaller: true, status: 'calling', isVideo });
       } catch (err) {
           console.error("Failed to start call:", err);
           forceEndLocalCall();
@@ -173,7 +185,7 @@ export const CallProvider = ({ children }) => {
       if (!incomingCall) return;
       
       try {
-          const stream = await getMedia();
+          const stream = await getMedia(incomingCall.isVideo);
           const pc = initializePeerConnection(incomingCall.callerId);
           
           stream.getTracks().forEach(track => pc.addTrack(track, stream));
@@ -191,7 +203,7 @@ export const CallProvider = ({ children }) => {
               payload: JSON.stringify(answer)
           });
 
-          setActiveCall({ remoteUserId: incomingCall.callerId, isCaller: false, status: 'connected' });
+          setActiveCall({ remoteUserId: incomingCall.callerId, isCaller: false, status: 'connected', isVideo: incomingCall.isVideo });
           setIncomingCall(null);
       } catch (err) {
           console.error("Failed to answer call:", err);
@@ -212,6 +224,7 @@ export const CallProvider = ({ children }) => {
       setActiveCall(null);
       setIncomingCall(null);
       setIsMuted(false);
+      setIsCameraOff(false);
   };
 
   const endCall = async () => {
@@ -238,7 +251,11 @@ export const CallProvider = ({ children }) => {
       acceptCall,
       endCall,
       toggleMute,
-      isMuted
+      toggleCamera,
+      isMuted,
+      isCameraOff,
+      localStream,
+      remoteStream
   };
 
   return (

@@ -125,7 +125,7 @@ const Messages = () => {
                                 <button onClick={() => startCall(activeUser.id)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Voice Call">
                                     <Phone size={24} />
                                 </button>
-                                <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Video Call">
+                                <button onClick={() => startCall(activeUser.id, true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Video Call">
                                     <Video size={24} />
                                 </button>
                                 <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Information">

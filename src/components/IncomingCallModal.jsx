@@ -35,7 +35,7 @@ const IncomingCallModal = () => {
                 <div className="pulse-ring"></div>
                 <img src={avatar} alt={caller.username} className="incoming-avatar" />
                 <h3 className="incoming-username">{caller.fullName || caller.username}</h3>
-                <p className="incoming-status">Benstagram Voice Call...</p>
+                <p className="incoming-status">{incomingCall.isVideo ? 'Benstagram Video Call...' : 'Benstagram Voice Call...'}</p>
                 
                 <div className="incoming-actions">
                     <button className="call-btn decline" onClick={endCall} aria-label="Decline Call">
