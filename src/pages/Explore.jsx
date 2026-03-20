@@ -8,9 +8,8 @@ const Explore = () => {
   const { posts } = useFeed();
   const navigate = useNavigate();
 
-  // Duplicate posts to simulate a fuller grid for the demo
-  // In a real app, this would fetch random posts
-  const explorePosts = [...posts, ...posts, ...posts, ...posts].sort(() => 0.5 - Math.random());
+  // Render live posts in a randomized grid order
+  const explorePosts = [...posts].sort(() => 0.5 - Math.random());
 
   return (
     <div className="explore-container">
