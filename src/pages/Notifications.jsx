@@ -51,6 +51,7 @@ const Notifications = () => {
                            {note.type === 'like' && ' liked your post.'}
                            {note.type === 'follow' && ' started following you.'}
                            {note.type === 'comment' && ` commented: "${note.text}"`}
+                           {note.type === 'message' && ` sent you a message: "${note.text}"`}
                         </span>
                         <span className="notification-time">{getRelativeTime(note.createdAt)}</span>
                     </div>

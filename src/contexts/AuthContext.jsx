@@ -130,6 +130,8 @@ export const AuthProvider = ({ children }) => {
                     const { data: benProfiles } = await client.models.UserProfile.list({ filter: { username: { eq: 'the_ben_official' } } });
                     if (benProfiles.length > 0) {
                         const benProfile = benProfiles[0];
+                        const welcomeText = `Welcome to Benstagram, human! 🐾 Ready your treats, maintain a good scratching posture, and enjoy the scrolling.`;
+                        
                         const { data: conv } = await client.models.Conversation.create({ lastMessageAt: new Date().toISOString() });
                         if (conv) {
                             await client.models.UserConversation.create({ userId: benProfile.id, conversationId: conv.id });
@@ -137,9 +139,23 @@ export const AuthProvider = ({ children }) => {
                             await client.models.Message.create({
                                 conversationId: conv.id,
                                 senderId: benProfile.id,
-                                text: `Welcome to Benstagram, human! 🐾 Ready your treats, maintain a good scratching posture, and enjoy the scrolling.`
+                                text: welcomeText
                             });
                         }
+                        
+                        // Auto-follow General Ben
+                        await client.models.Follow.create({
+                            followerId: newProfile.id,
+                            followingId: benProfile.id
+                        });
+                        
+                        // Push a welcome notification
+                        await client.models.Notification.create({
+                            recipientId: newProfile.id,
+                            senderId: benProfile.id,
+                            type: 'message',
+                            text: welcomeText
+                        });
                     }
                 } catch (welcomeError) {
                     console.error("Failed to send welcome message:", welcomeError);
