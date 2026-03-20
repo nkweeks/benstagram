@@ -18,6 +18,7 @@ const Profile = () => {
   
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
+  const [modalState, setModalState] = useState({ isOpen: false, type: null, userIds: [] });
   
   // Edit state
   const [isEditing, setIsEditing] = useState(false);
@@ -110,8 +111,6 @@ const Profile = () => {
 
   const followersList = follows.filter(f => f.followingId === profileUser?.id).map(f => f.followerId);
   const followingList = follows.filter(f => f.followerId === profileUser?.id).map(f => f.followingId);
-  
-  const [modalState, setModalState] = useState({ isOpen: false, type: null, userIds: [] });
 
   return (
     <div className="profile-container">
