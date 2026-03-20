@@ -47,6 +47,40 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
     setCommentText('');
   };
 
+  const renderText = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(@[a-zA-Z0-9_.-]+|https?:\/\/[^\s]+)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('@')) {
+        const mentionedUser = part.substring(1);
+        return (
+          <span 
+            key={index} 
+            className="mention" 
+            style={{ color: '#0095f6', cursor: 'pointer', fontWeight: 600 }}
+            onClick={(e) => { e.stopPropagation(); navigate(`/profile/${mentionedUser}`); onClose(); }}
+          >
+            {part}
+          </span>
+        );
+      } else if (part.startsWith('http://') || part.startsWith('https://')) {
+        return (
+          <a 
+            key={index} 
+            href={part} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: '#00376b', textDecoration: 'none', wordBreak: 'break-all' }}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   const modalContent = (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container comments-modal" onClick={e => e.stopPropagation()}>
@@ -65,7 +99,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
             <div className="comment-content">
               <div className="comment-text-wrapper">
                 <span className="comment-username" onClick={() => { if (author?.username) { navigate(`/profile/${author.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>{author?.username}</span>
-                <span className="comment-text">{post.caption}</span>
+                <span className="comment-text">{renderText(post.caption)}</span>
               </div>
               <div className="comment-time">{post.timestamp}</div>
             </div>
@@ -82,7 +116,7 @@ const CommentsModal = ({ isOpen, onClose, postId }) => {
                   <div className="comment-content">
                     <div className="comment-text-wrapper">
                       <span className="comment-username" onClick={() => { if (commentUser.username) { navigate(`/profile/${commentUser.username}`); onClose(); } }} style={{ cursor: 'pointer' }}>{commentUser.username}</span>
-                      <span className="comment-text">{comment.text}</span>
+                      <span className="comment-text">{renderText(comment.text)}</span>
                     </div>
                     <div className="comment-time">{comment.timestamp}</div>
                   </div>

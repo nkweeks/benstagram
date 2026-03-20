@@ -103,8 +103,10 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
 
   const renderCaption = (text) => {
     if (!text) return null;
-    // Split by @username pattern
-    const parts = text.split(/(@[a-zA-Z0-9_.-]+)/g);
+    
+    // Split by both @mentions and URLs
+    const parts = text.split(/(@[a-zA-Z0-9_.-]+|https?:\/\/[^\s]+)/g);
+    
     return parts.map((part, index) => {
       if (part.startsWith('@')) {
         const mentionedUser = part.substring(1);
@@ -119,6 +121,19 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
           >
             {part}
           </span>
+        );
+      } else if (part.startsWith('http://') || part.startsWith('https://')) {
+        return (
+          <a 
+            key={index} 
+            href={part} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            style={{ color: '#00376b', textDecoration: 'none', wordBreak: 'break-all' }}
+          >
+            {part}
+          </a>
         );
       }
       return part;
