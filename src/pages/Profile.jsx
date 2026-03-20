@@ -38,11 +38,6 @@ const Profile = () => {
       profileUser = currentUser;
   }
   
-  if (!profileUser) return <div className="profile-container">User not found</div>;
-
-  const isCurrentUser = currentUser?.id === profileUser.id;
-  const isFollowing = follows.some(f => f.followingId === profileUser.id);
-  
   useEffect(() => {
     if (!profileUser?.id) return;
     
@@ -59,6 +54,11 @@ const Profile = () => {
         subFollowing.unsubscribe();
     };
   }, [profileUser?.id]);
+
+  if (!profileUser) return <div className="profile-container">User not found</div>;
+
+  const isCurrentUser = currentUser?.id === profileUser.id;
+  const isFollowing = follows.some(f => f.followingId === profileUser.id);
 
   const handleEditClick = () => {
     setEditForm({
