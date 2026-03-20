@@ -23,8 +23,10 @@ const Profile = () => {
   // Find user by username
   let profileUser = Object.values(users).find(u => u.username === username);
   
-  // If not found in mock data, check if it's the currently logged-in user (e.g. signed up user)
-  if (!profileUser && currentUser && currentUser.username === username) {
+  // Prefer currentUser object if this is the logged-in user, because it has pre-resolved avatarUrl
+  if (currentUser && currentUser.username === username) {
+      profileUser = currentUser;
+  } else if (!profileUser && currentUser?.username === username) {
       profileUser = currentUser;
   }
   

@@ -6,8 +6,22 @@ import './Post.css';
 import CommentsModal from './CommentsModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useFeed } from '../contexts/FeedContext';
+import { generateClient } from 'aws-amplify/data';
 
-const Post = ({ post, author, isSaved, onLike, onSave }) => {
+const client = generateClient();
+
+const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
+  const [fetchedAuthor, setFetchedAuthor] = useState(null);
+  const author = initialAuthor || fetchedAuthor;
+
+  useEffect(() => {
+    if (!initialAuthor && post.userId) {
+       client.models.UserProfile.get({ id: post.userId }).then(({ data }) => {
+           if (data) setFetchedAuthor(data);
+       }).catch(console.error);
+    }
+  }, [initialAuthor, post.userId]);
+
   const { isLiked, likes, caption, imageUrl, timestamp } = post;
   const username = author?.username || 'Unknown';
   const avatar = author?.avatarUrl || author?.avatar || '/default-avatar.png';
