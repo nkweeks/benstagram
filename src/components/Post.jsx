@@ -49,6 +49,8 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
   
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isEditingCaption, setIsEditingCaption] = useState(false);
+  const [editCaptionText, setEditCaptionText] = useState(caption || '');
   const menuRef = useRef(null);
 
   const isOwner = currentUser?.id === post.userId;
@@ -68,6 +70,28 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`).catch(() => {});
     setIsMenuOpen(false);
     alert('Link copied!');
+  };
+
+  const handleEditClick = () => {
+    setEditCaptionText(caption || '');
+    setIsEditingCaption(true);
+    setIsMenuOpen(false);
+  };
+
+  const handleSaveCaption = async () => {
+    try {
+        const { data, errors } = await client.models.Post.update({
+            id: post.id,
+            caption: editCaptionText
+        });
+        if (!errors) {
+            setIsEditingCaption(false);
+        } else {
+            console.error("Failed to update caption:", errors);
+        }
+    } catch (e) {
+        console.error("Exception updating caption:", e);
+    }
   };
 
   const handleDelete = () => {
@@ -119,9 +143,14 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
         {isMenuOpen && (
           <div className="post-dropdown">
             {isOwner && (
-              <button className="dropdown-item danger" onClick={handleDelete}>
-                <Trash2 size={16} /> Delete
-              </button>
+              <>
+                <button className="dropdown-item" onClick={handleEditClick}>
+                  <Edit2 size={16} /> Edit
+                </button>
+                <button className="dropdown-item danger" onClick={handleDelete}>
+                  <Trash2 size={16} /> Delete
+                </button>
+              </>
             )}
             <button className="dropdown-item" onClick={handleCopyLink}>
               <LinkIcon size={16} /> Copy Link
@@ -163,7 +192,24 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
         </div>
 
         <div className="post-caption">
-          <strong>{username}</strong> {renderCaption(caption)}
+          <strong>{username}</strong> 
+          {isEditingCaption ? (
+             <div className="edit-caption-form" style={{ display: 'inline-flex', flexDirection: 'column', width: '100%', marginTop: '5px' }}>
+               <textarea 
+                  value={editCaptionText} 
+                  onChange={(e) => setEditCaptionText(e.target.value)}
+                  autoFocus
+                  style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #dbdbdb', resize: 'none' }}
+                  rows={2}
+               />
+               <div style={{ display: 'flex', gap: '8px', marginTop: '5px' }}>
+                 <button onClick={handleSaveCaption} className="btn-primary" style={{ padding: '4px 12px', fontSize: '12px' }}>Save</button>
+                 <button onClick={() => setIsEditingCaption(false)} className="btn-secondary" style={{ padding: '4px 12px', fontSize: '12px' }}>Cancel</button>
+               </div>
+             </div>
+          ) : (
+            <> {renderCaption(caption)}</>
+          )}
         </div>
 
         <div className="post-comments-link" onClick={() => setIsCommentsOpen(true)}>
