@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { useAuth } from './AuthContext';
+import { POSTS, USERS } from '../data/mockData';
 
 const client = generateClient();
 const FeedContext = createContext();
@@ -18,9 +19,70 @@ export const FeedProvider = ({ children }) => {
   const [users, setUsers] = useState({});
   const { user: currentUser, updateUser } = useAuth(); 
 
-  // Load and Subscribe to Real-Time Feed Data
+  const isDemoAccount = currentUser?.id === 'ben';
+
+  // Load and Subscribe to Real-Time Feed Data OR Load Mock Data
   useEffect(() => {
-    // 1. Subscribe to Live Posts
+    if (isDemoAccount) {
+        // Load mock data for the demo account
+        setPosts(POSTS);
+        const userMap = USERS.reduce((acc, user) => {
+            acc[user.username] = user; 
+            acc[user.id] = user;       
+            return acc;
+        }, {});
+        setUsers(userMap);
+        return; // Skip AWS Subscriptions entirely
+    }
+
+    // Seed General Ben Data once
+    const seedGeneralBen = async () => {
+        if (!currentUser?.id) return;
+        const seeded = localStorage.getItem('gen_ben_seeded_v1');
+        if (seeded) return;
+        
+        try {
+            // Optimistically set to prevent parallel executions
+            localStorage.setItem('gen_ben_seeded_v1', 'true');
+            const { data } = await client.models.UserProfile.list({ filter: { username: { eq: 'the_ben_official' } } });
+            if (data.length === 0) {
+                 const { data: benProfile } = await client.models.UserProfile.create({
+                     username: 'the_ben_official',
+                     fullName: 'General Ben',
+                     avatar: '/ben-avatar-general.jpeg',
+                     bio: 'Great Dane. General of the Army. Good Boy. 🦴',
+                     email: 'ben@benstagram.com'
+                 });
+                 if (benProfile) {
+                     await client.models.Post.create({
+                         userId: benProfile.id,
+                         imageUrl: '/dogs-dancing.jpg',
+                         caption: 'Dancing is the best! 🕺🐕 #DancingDogs #GoodVibes',
+                         likes: 5000
+                     });
+                     await client.models.Post.create({
+                         userId: benProfile.id,
+                         imageUrl: '/ben-post-general-1.jpeg',
+                         caption: 'Leading the troops (to the treat jar). #GeneralBen',
+                         likes: 1240
+                     });
+                     await client.models.Post.create({
+                         userId: benProfile.id,
+                         imageUrl: '/ben-post-general-2.jpeg',
+                         caption: 'Pondering the strategy for the next nap.',
+                         likes: 856
+                     });
+                 }
+            }
+        } catch (e) {
+            console.error("Failed to seed General Ben:", e);
+            localStorage.removeItem('gen_ben_seeded_v1'); // Retry later if failed
+        }
+    };
+    
+    seedGeneralBen();
+
+    // 1. Subscribe to Live Posts for Real Users
     const subPosts = client.models.Post.observeQuery().subscribe({
       next: ({ items }) => {
         // Sort newest posts first
@@ -59,12 +121,12 @@ export const FeedProvider = ({ children }) => {
       subPosts.unsubscribe();
       subUsers.unsubscribe();
     };
-  }, []);
+  }, [isDemoAccount, currentUser?.id]);
 
   const toggleLike = async (postId) => {
     if (!currentUser) return;
     
-    // Optimistic UI update
+    // Optimistic UI update (works for both live and mock)
     setPosts(currentPosts => 
       currentPosts.map(post => {
         if (post.id === postId) {
@@ -78,6 +140,8 @@ export const FeedProvider = ({ children }) => {
         return post;
       })
     );
+
+    if (isDemoAccount) return; // Prevent DB mutation for demo account
 
     try {
         const postToUpdate = posts.find(p => p.id === postId);
@@ -96,6 +160,29 @@ export const FeedProvider = ({ children }) => {
   const addComment = async (postId, commentText) => {
     if (!currentUser) return;
     
+    if (isDemoAccount) {
+        // Mock UI injection
+        const newComment = {
+            id: `c_${Date.now()}`,
+            userId: currentUser.id,
+            username: currentUser.username,
+            text: commentText,
+            timestamp: 'Just now'
+        };
+        setPosts(currentPosts => 
+            currentPosts.map(post => {
+              if (post.id === postId) {
+                return {
+                  ...post,
+                  comments: [...(post.comments || []), newComment]
+                };
+              }
+              return post;
+            })
+        );
+        return;
+    }
+
     try {
         await client.models.Comment.create({
             text: commentText,
@@ -122,10 +209,16 @@ export const FeedProvider = ({ children }) => {
     }
     
     // Update local UI immediately through AuthContext
-    updateUser({ savedPostIds: newSavedIds });
+    // This intercepts actual AWS database calls inside AuthContext if it's the demo account
+    updateUser({ savedPostIds: newSavedIds }); 
   };
 
   const deletePost = async (postId) => {
+    if (isDemoAccount) {
+        setPosts(prev => prev.filter(post => post.id !== postId));
+        return;
+    }
+
     try {
         await client.models.Post.delete({ id: postId });
     } catch (e) {
@@ -133,13 +226,20 @@ export const FeedProvider = ({ children }) => {
     }
   };
 
+  const addPost = (newPost) => {
+      // Re-exposing this solely for the Demo account to push fake posts locally
+      if (isDemoAccount) {
+          setPosts(prev => [newPost, ...prev]);
+      }
+  }
+
   const value = {
     posts,
     users,
     currentUser,
     toggleLike,
     toggleSave,
-    // Note: addPost is no longer exposed here since UploadModal imports client.models directly
+    addPost, // Restored for Demo account usage
     addComment,
     deletePost
   };

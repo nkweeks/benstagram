@@ -55,12 +55,12 @@ const UploadModal = ({ isOpen, onClose }) => {
       // 1. Upload the physical image block to S3 Storage
       const filename = `${Date.now()}_${file.name}`;
       await uploadData({
-        path: `public/post-images/${filename}`,
+        path: `post-images/${filename}`,
         data: file
       }).result;
 
       // 2. Fetch the newly created public accessible S3 Path
-      const urlInfo = await getUrl({ path: `public/post-images/${filename}` });
+      const urlInfo = await getUrl({ path: `post-images/${filename}` });
       const imageUrl = urlInfo.url.toString();
 
       // 3. Inject the Post document directly into the real DynamoDB Database
