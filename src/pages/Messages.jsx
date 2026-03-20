@@ -100,8 +100,8 @@ const Messages = () => {
                                 <button className="mobile-back-btn" onClick={() => setActiveChatId(null)}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                                 </button>
-                                <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} alt={activeUser.username} className="chat-header-avatar" />
-                                <span>{activeUser.fullName || activeUser.username}</span>
+                                <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} alt={activeUser.username} onClick={() => window.location.href = `/profile/${activeUser.username}`} className="chat-header-avatar" style={{cursor: 'pointer'}} title="View Profile" />
+                                <span onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{cursor: 'pointer'}} title="View Profile">{activeUser.fullName || activeUser.username}</span>
                             </div>
                             <div className="chat-actions">
                                 <button onClick={() => { deleteConversation(activeChatId); setActiveChatId(null); }} style={{ padding: '8px', border: 'none', background: 'transparent', color: '#ed4956', cursor: 'pointer' }} title="Delete Conversation">
