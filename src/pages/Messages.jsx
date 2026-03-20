@@ -13,6 +13,14 @@ const Messages = () => {
     const [activeChatId, setActiveChatId] = useState(null);
     const [inputText, setInputText] = useState('');
     const messagesEndRef = useRef(null);
+    const [showComingSoon, setShowComingSoon] = useState(false);
+
+    useEffect(() => {
+        if (showComingSoon) {
+            const timer = setTimeout(() => setShowComingSoon(false), 2500);
+            return () => clearTimeout(timer);
+        }
+    }, [showComingSoon]);
 
     // Auto-scroll to bottom when messages change
     useEffect(() => {
@@ -104,13 +112,27 @@ const Messages = () => {
                                 <span onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{cursor: 'pointer'}} title="View Profile">{activeUser.fullName || activeUser.username}</span>
                             </div>
                             <div className="chat-actions">
+                                <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Voice Call">
+                                    <Phone size={24} />
+                                </button>
+                                <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Video Call">
+                                    <Video size={24} />
+                                </button>
+                                <button onClick={() => setShowComingSoon(true)} style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-color)' }} title="Information">
+                                    <Info size={24} />
+                                </button>
                                 <button onClick={() => { deleteConversation(activeChatId); setActiveChatId(null); }} style={{ padding: '8px', border: 'none', background: 'transparent', color: '#ed4956', cursor: 'pointer' }} title="Delete Conversation">
                                     <Trash2 size={24} />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="chat-messages">
+                        <div className="chat-messages" style={{ position: 'relative' }}>
+                            {showComingSoon && (
+                                <div style={{ position: 'absolute', top: '10px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'var(--primary-color)', color: 'white', padding: '10px 20px', borderRadius: '30px', fontSize: '14px', fontWeight: 'bold', zIndex: 100, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
+                                    Feature coming soon! 🚀
+                                </div>
+                            )}
                             {activeMessages.map(msg => {
                                 const isSent = msg.senderId === currentUser?.id;
                                 return (
