@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import { useAuth } from './AuthContext';
+import IncomingCallModal from '../components/IncomingCallModal';
+import ActiveCallOverlay from '../components/ActiveCallOverlay';
 
 const client = generateClient();
 const CallContext = createContext();
@@ -242,31 +244,8 @@ export const CallProvider = ({ children }) => {
   return (
     <CallContext.Provider value={value}>
       {children}
-      {/* Temporary Placeholders - Real UIs will be mapped here in Phase 3 */}
-      {incomingCall && (
-          <div style={{ position: 'fixed', top: 20, right: 20, zIndex: 9999, background: '#ef4444', color: 'white', padding: '15px', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
-              <h4>Incoming Call!</h4>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                  <button onClick={acceptCall} style={{ background: '#22c55e', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>Answer</button>
-                  <button onClick={endCall} style={{ background: 'transparent', color: 'white', border: '1px solid white', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer' }}>Decline</button>
-              </div>
-          </div>
-      )}
-      
-      {activeCall && (
-          <div style={{ position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: '#18181b', color: 'white', padding: '15px 30px', borderRadius: '30px', display: 'flex', alignItems: 'center', gap: '20px', boxShadow: '0 10px 25px rgba(0,0,0,0.5)' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <strong>{activeCall.status === 'calling' ? 'Calling...' : 'Call Active'}</strong>
-                  <span style={{ fontSize: '12px', color: '#a1a1aa' }}>Hardware Secured</span>
-              </div>
-              <button onClick={toggleMute} style={{ background: isMuted ? '#ef4444' : '#3f3f46', border: 'none', color: 'white', padding: '10px', borderRadius: '50%', cursor: 'pointer' }}>
-                 🎙️
-              </button>
-              <button onClick={endCall} style={{ background: '#ef4444', border: 'none', color: 'white', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold' }}>
-                 End Call
-              </button>
-          </div>
-      )}
+      <IncomingCallModal />
+      <ActiveCallOverlay />
     </CallContext.Provider>
   );
 };

@@ -1,0 +1,109 @@
+.active-call-overlay {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 99999;
+    animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none; /* Let clicks pass through overlay background */
+}
+
+.active-call-island {
+    pointer-events: auto; /* Re-enable clicks exactly on the island */
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 40px;
+    padding: 8px 16px 8px 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.island-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid transparent;
+}
+
+.island-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+}
+
+.island-name {
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.island-status {
+    color: #a1a1aa;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.island-status.connected {
+    color: #34d399; /* Emerald green timer */
+}
+
+.island-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.island-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.island-btn:hover {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+}
+
+.island-btn:active {
+    transform: scale(0.95);
+}
+
+.mute-btn {
+    background: #3f3f46;
+}
+
+.hangup-btn {
+    background: #ef4444;
+}
+
+@keyframes slideDown {
+    from { transform: translate(-50%, -100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .active-call-island {
+        border-radius: 20px;
+        flex-direction: column;
+        padding: 16px;
+        min-width: 90vw;
+    }
+    .island-info {
+        align-items: center;
+    }
+}
