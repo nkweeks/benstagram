@@ -155,20 +155,60 @@ export const MessageProvider = ({ children }) => {
         }
     };
 
+    // Action: Delete conversation
+    const deleteConversation = async (conversationId) => {
+        if (!currentUser) return false;
+        try {
+            const { data: myLinks } = await client.models.UserConversation.list({
+                filter: { userId: { eq: currentUser.id } }
+            });
+            const linkToDelete = myLinks.find(uc => uc.conversationId === conversationId);
+            if (linkToDelete) {
+                await client.models.UserConversation.delete({ id: linkToDelete.id });
+                setConversations(prev => prev.filter(c => c.id !== conversationId));
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Error deleting conversation link:", error);
+            return false;
+        }
+    };
+
     // Action: Create or get a conversation with a specific user
     const getOrCreateConversation = async (targetUserId) => {
         if (!currentUser) return null;
         
-        // Check if we already have a conversation with this exact user
-        const existingConv = conversations.find(c => 
-            c.participants && 
-            c.participants.some(p => p.userId === targetUserId) && 
-            c.participants.length === 2 // Assuming direct messages only right now
-        );
-
-        if (existingConv) return existingConv;
-
         try {
+            // DB deduplication check
+            const { data: myLinks } = await client.models.UserConversation.list({
+                filter: { userId: { eq: currentUser.id } }
+            });
+            const myConvIds = myLinks.map(uc => uc.conversationId);
+            
+            const { data: theirLinks } = await client.models.UserConversation.list({
+                filter: { userId: { eq: targetUserId } }
+            });
+            const theirConvIds = theirLinks.map(uc => uc.conversationId);
+            
+            // Intersection
+            const mutualConvId = myConvIds.find(id => theirConvIds.includes(id));
+            
+            if (mutualConvId) {
+                let existing = conversations.find(c => c.id === mutualConvId);
+                if (existing) return existing;
+                
+                const { data: conv } = await client.models.Conversation.get({ id: mutualConvId });
+                if (conv) {
+                    const { data: participants } = await client.models.UserConversation.list({
+                       filter: { conversationId: { eq: mutualConvId } }
+                    });
+                    conv.participants = participants;
+                    setConversations(prev => [conv, ...prev.filter(c => c.id !== mutualConvId)]);
+                    return conv;
+                }
+            }
+
             // Create the new Conversation shell
             const { data: newConv } = await client.models.Conversation.create({
                 lastMessageAt: new Date().toISOString()
@@ -206,7 +246,8 @@ export const MessageProvider = ({ children }) => {
         isLoading,
         sendMessage,
         getOrCreateConversation,
-        fetchMessagesForConversation
+        fetchMessagesForConversation,
+        deleteConversation
     };
 
     return (

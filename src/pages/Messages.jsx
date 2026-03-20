@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Phone, Video, Info } from 'lucide-react';
+import { Send, Phone, Video, Info, Trash2 } from 'lucide-react';
 import { useFeed } from '../contexts/FeedContext';
 import { useMessage } from '../contexts/MessageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,7 +8,7 @@ import './Messages.css';
 const Messages = () => {
     const { users } = useFeed();
     const { user: currentUser } = useAuth();
-    const { conversations, messages, sendMessage, getOrCreateConversation } = useMessage();
+    const { conversations, messages, sendMessage, getOrCreateConversation, deleteConversation } = useMessage();
     
     const [activeChatId, setActiveChatId] = useState(null);
     const [inputText, setInputText] = useState('');
@@ -104,18 +104,25 @@ const Messages = () => {
                                 <span>{activeUser.fullName || activeUser.username}</span>
                             </div>
                             <div className="chat-actions">
-                                <Phone size={24} />
-                                <Video size={24} />
-                                <Info size={24} />
+                                <button onClick={() => { deleteConversation(activeChatId); setActiveChatId(null); }} style={{ padding: '8px', border: 'none', background: 'transparent', color: '#ed4956', cursor: 'pointer' }} title="Delete Conversation">
+                                    <Trash2 size={24} />
+                                </button>
                             </div>
                         </div>
 
                         <div className="chat-messages">
-                            {activeMessages.map(msg => (
-                                <div key={msg.id} className={`message-bubble ${msg.senderId === currentUser?.id ? 'sent' : 'received'}`}>
-                                    {msg.text}
+                            {activeMessages.map(msg => {
+                                const isSent = msg.senderId === currentUser?.id;
+                                return (
+                                <div key={msg.id} style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', width: '100%', justifyContent: isSent ? 'flex-end' : 'flex-start', marginBottom: '12px' }}>
+                                    {!isSent && activeUser && (
+                                        <img src={activeUser.avatarUrl || activeUser.avatar || '/default-avatar.png'} onClick={() => window.location.href = `/profile/${activeUser.username}`} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer' }} alt={activeUser.username} />
+                                    )}
+                                    <div className={`message-bubble ${isSent ? 'sent' : 'received'}`} style={{ margin: 0 }}>
+                                        {msg.text}
+                                    </div>
                                 </div>
-                            ))}
+                            )})}
                             <div ref={messagesEndRef} />
                         </div>
 
