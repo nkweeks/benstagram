@@ -175,7 +175,11 @@ const Post = ({ post, author: initialAuthor, isSaved, onLike, onSave }) => {
       </div>
 
       <div className="post-image" onDoubleClick={onLike}>
-        <img src={imageUrl} alt="Post content" />
+        {imageUrl?.match(/\.(mp4|mov|webm|ogg)(?:\?|$)/i) ? (
+            <video src={imageUrl} style={{ width: '100%', display: 'block', maxHeight: '600px', backgroundColor: 'black' }} controls autoPlay muted loop playsInline />
+        ) : (
+            <img src={imageUrl} alt="Post content" />
+        )}
         {isLiked && <div className="heart-animation">❤️</div>}
       </div>
 

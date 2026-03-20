@@ -110,13 +110,17 @@ const UploadModal = ({ isOpen, onClose }) => {
                 type="file" 
                 className="file-input" 
                 onChange={handleChange} 
-                accept="image/*"
+                accept="image/*,video/*"
               />
             </div>
           ) : (
             <div className="upload-preview-container">
               <div className="upload-preview-image">
-                <img src={URL.createObjectURL(file)} alt="Preview" />
+                {file.type.startsWith('video/') ? (
+                  <video src={URL.createObjectURL(file)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} controls autoPlay muted loop playsInline />
+                ) : (
+                  <img src={URL.createObjectURL(file)} alt="Preview" />
+                )}
               </div>
               <div className="upload-details">
                 <div className="user-info">

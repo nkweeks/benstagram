@@ -236,7 +236,11 @@ const Profile = () => {
             onClick={() => navigate(`/post/${post.id}`)}
             style={{ cursor: 'pointer' }}
           >
-            <img src={post.imageUrl} alt={post.caption} />
+            {post.imageUrl?.match(/\.(mp4|mov|webm|ogg)(?:\?|$)/i) ? (
+              <video src={post.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} autoPlay muted loop playsInline />
+            ) : (
+              <img src={post.imageUrl} alt={post.caption} />
+            )}
             <div className="grid-item-overlay">
               <span>❤️ {post.likes}</span>
             </div>
