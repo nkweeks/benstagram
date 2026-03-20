@@ -11,11 +11,11 @@ const run = async () => {
       SupportedIdentityProviders: ["COGNITO", "Google"],
       CallbackURLs: [
         "http://localhost:3333/profile",
-        "https://benstagram.net/profile"
+        "https://thebenapp.net/profile"
       ],
       LogoutURLs: [
         "http://localhost:3333",
-        "https://benstagram.net"
+        "https://thebenapp.net"
       ],
       AllowedOAuthFlows: ["code"],
       AllowedOAuthScopes: ["phone", "email", "openid", "profile", "aws.cognito.signin.user.admin"],

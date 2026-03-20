@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Benstagram</string>
+        <string>The Ben App</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -48,8 +48,8 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Benstagram requires camera access for Video Calling.</string>
+	<string>The Ben App requires camera access for Video Calling.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Benstagram requires microphone access for Voice and Video Calling.</string>
+	<string>The Ben App requires microphone access for Voice and Video Calling.</string>
 </dict>
 </plist>

@@ -84,7 +84,7 @@ const Signup = () => {
             
             <div className={`login-box ${!isVerified ? 'blur-content' : ''}`}>
                 <div className="login-logo">
-                    <img src={logoPath} alt="Benstagram" />
+                    <img src={logoPath} alt="The Ben App" />
                 </div>
                 
                 {isVerifyingEmail ? (

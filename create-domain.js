@@ -5,7 +5,7 @@ const client = new CognitoIdentityProviderClient({ region: "us-east-1" });
 
 const run = async () => {
   try {
-    const domainPrefix = "benstagram-auth-nathan";
+    const domainPrefix = "thebenapp-auth-nathan";
     console.log(`Creating User Pool Domain: ${domainPrefix}...`);
     
     await client.send(new CreateUserPoolDomainCommand({

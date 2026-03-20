@@ -1,4 +1,4 @@
-package com.benstagram.app;
+package com.thebenapp.app;
 
 import com.getcapacitor.BridgeActivity;
 

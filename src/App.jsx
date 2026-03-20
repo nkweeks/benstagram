@@ -21,7 +21,7 @@ const PostPage = lazy(() => import('./pages/PostPage'));
 // Native Fallback loader component for Code-Splitting
 const PageLoader = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', minHeight: '100vh', width: '100%', backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-    <p style={{ fontSize: '14px', fontWeight: 'bold' }}>Loading Benstagram...</p>
+    <p style={{ fontSize: '14px', fontWeight: 'bold' }}>Loading The Ben App...</p>
   </div>
 );
 

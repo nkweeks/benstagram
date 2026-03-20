@@ -55,7 +55,7 @@ export const FeedProvider = ({ children }) => {
                      fullName: 'General Ben',
                      avatar: '/ben-avatar-general.jpeg',
                      bio: 'Great Dane. General of the Army. Good Boy. 🦴',
-                     email: 'ben@benstagram.com'
+                     email: 'ben@thebenapp.com'
                  });
                  if (benProfile) {
                      await client.models.Post.create({

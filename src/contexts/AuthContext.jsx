@@ -112,9 +112,9 @@ export const AuthProvider = ({ children }) => {
                 console.log("Creating new UserProfile for:", friendlyUsername);
                 const { data: newProfile, errors } = await client.models.UserProfile.create({
                     username: friendlyUsername,
-                    email: attributes.email || 'no-email-provided@benstagram.net',
+                    email: attributes.email || 'no-email-provided@thebenapp.net',
                     fullName: attributes.name || '',
-                    bio: 'New to Benstagram',
+                    bio: 'New to The Ben App',
                     avatar: '' 
                 });
                 
@@ -130,7 +130,7 @@ export const AuthProvider = ({ children }) => {
                     const { data: benProfiles } = await client.models.UserProfile.list({ filter: { username: { eq: 'the_ben_official' } } });
                     if (benProfiles.length > 0) {
                         const benProfile = benProfiles[0];
-                        const welcomeText = `Welcome to Benstagram, human! 🐾 Ready your treats, maintain a good scratching posture, and enjoy the scrolling.`;
+                        const welcomeText = `Welcome to The Ben App, human! 🐾 Ready your treats, maintain a good scratching posture, and enjoy the scrolling.`;
                         
                         const { data: conv } = await client.models.Conversation.create({ lastMessageAt: new Date().toISOString() });
                         if (conv) {
@@ -196,7 +196,7 @@ export const AuthProvider = ({ children }) => {
                 const demoUser = {
                     id: 'ben',
                     username: 'the_ben_official',
-                    email: 'ben@benstagram.com',
+                    email: 'ben@thebenapp.com',
                     fullName: 'General Ben',
                     bio: 'Great Dane. General of the Army. Good Boy. 🦴',
                     avatarUrl: '/ben-avatar-general.jpeg',

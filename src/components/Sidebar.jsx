@@ -23,7 +23,7 @@ const Sidebar = ({ onCreateClick }) => {
     <>
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <img src={logoPath} alt="Benstagram" className="logo-image" />
+          <img src={logoPath} alt="The Ben App" className="logo-image" />
         </div>
         
         <nav className="sidebar-nav">

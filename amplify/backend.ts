@@ -19,10 +19,10 @@ const backend = defineBackend({
 if (process.env.AWS_BRANCH === 'main') {
   backend.auth.resources.userPool.addDomain('CustomDomain', {
     customDomain: {
-      domainName: 'auth.benstagram.net',
+      domainName: 'auth.thebenapp.net',
       certificate: Certificate.fromCertificateArn(
         backend.auth.resources.userPool,
-        'BenstagramAuthCert',
+        'The Ben AppAuthCert',
         'arn:aws:acm:us-east-1:951282861149:certificate/3e8c05a8-5274-4f8c-9e17-eed9f409d596'
       )
     }

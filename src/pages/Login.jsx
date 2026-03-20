@@ -69,7 +69,7 @@ const Login = () => {
         <div className="login-container">
             <div className="login-box">
                 <div className="login-logo">
-                    <img src={logoPath} alt="Benstagram" />
+                    <img src={logoPath} alt="The Ben App" />
                 </div>
                 
                 <form className="login-form" onSubmit={handleSubmit}>
