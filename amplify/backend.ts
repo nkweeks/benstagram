@@ -13,18 +13,4 @@ const backend = defineBackend({
   storage,
 });
 
-// Configure Custom Domain for Cognito Hosted UI
-// Only apply the custom domain to the production 'main' branch
-// to prevent "Domain already associated" collisions with 'staging'
-if (process.env.AWS_BRANCH === 'main') {
-  backend.auth.resources.userPool.addDomain('CustomDomain', {
-    customDomain: {
-      domainName: 'auth.thebenapp.net',
-      certificate: Certificate.fromCertificateArn(
-        backend.auth.resources.userPool,
-        'The Ben AppAuthCert',
-        'arn:aws:acm:us-east-1:951282861149:certificate/3e8c05a8-5274-4f8c-9e17-eed9f409d596'
-      )
-    }
-  });
-}
+// Removed outdated .net CustomDomain block to unblock CloudFormation
