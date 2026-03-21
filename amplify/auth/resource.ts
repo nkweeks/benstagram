@@ -15,11 +15,11 @@ export const auth = defineAuth({
       },
       callbackUrls: [
         'http://localhost:3333/profile/',
-        'https://thebenapp.net/profile/'
+        'https://thebenapp.com/profile/'
       ],
       logoutUrls: [
         'http://localhost:3333',
-        'https://thebenapp.net'
+        'https://thebenapp.com'
       ],
     }
   },
