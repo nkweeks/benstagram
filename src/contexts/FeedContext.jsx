@@ -86,6 +86,9 @@ export const FeedProvider = ({ children }) => {
     
     seedGeneralBen();
 
+    // Trap unauthenticated global contexts (e.g on /login load)
+    if (!currentUser?.id) return;
+
     // 1. Subscribe to Live Posts for Real Users
     const subPosts = client.models.Post.observeQuery().subscribe({
       next: ({ items }) => {
